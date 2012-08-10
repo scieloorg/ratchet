@@ -30,15 +30,118 @@ class Application(tornado.web.Application):
 
 
 class PdfHandler(tornado.web.RequestHandler):
-    pass
+    @property
+    def db(self):
+        if not hasattr(self, '_db'):
+            self._db = asyncmongo.Client(
+                pool_id='accesses',
+                host='localhost',
+                port=27017,
+                maxcached=10,
+                maxconnections=600,
+                dbname='analytics'
+            )
+
+        return self._db
+
+    def post(self):
+        code = self.get_argument('code')
+        region = self.get_argument('region')
+        journal = self.get_argument('journal')
+        access_date = self.get_argument('access_date')
+        iso_date = access_date
+        month_date = iso_date[:7]
+
+        self.db.accesses.update(
+            {'code': code},
+            {'$set': {'type': 'article', 'journal': journal}, '$inc': {region: 1, iso_date: 1, month_date: 1, 'total': 1}},
+            safe=False,
+            upsert=True
+        )
 
 
 class ArticleHandler(tornado.web.RequestHandler):
-    pass
+    @property
+    def db(self):
+        if not hasattr(self, '_db'):
+            self._db = asyncmongo.Client(
+                pool_id='accesses',
+                host='localhost',
+                port=27017,
+                maxcached=10,
+                maxconnections=600,
+                dbname='analytics'
+            )
+
+        return self._db
+
+    def post(self):
+        code = self.get_argument('code')
+        region = self.get_argument('region')
+        journal = self.get_argument('journal')
+        iso_date = date.isoformat(date.today())
+        month_date = iso_date[:7]
+
+        self.db.accesses.update(
+            {'code': code},
+            {'$set': {'type': 'article', 'journal': journal}, '$inc': {region: 1, iso_date: 1, month_date: 1, 'total': 1}},
+            safe=False,
+            upsert=True
+        )
+
+    @tornado.web.asynchronous
+    def get(self):
+        code = self.get_argument('code')
+        self.db.accesses.find_one({"code": code}, limit=1, callback=self._on_get_response)
+
+    def _on_get_response(self, response, error):
+        if error:
+            raise tornado.web.HTTPError(500)
+
+        self.write(str(response))
+        self.finish()
 
 
 class IssueHandler(tornado.web.RequestHandler):
-    pass
+    @property
+    def db(self):
+        if not hasattr(self, '_db'):
+            self._db = asyncmongo.Client(
+                pool_id='accesses',
+                host='localhost',
+                port=27017,
+                maxcached=10,
+                maxconnections=600,
+                dbname='analytics'
+            )
+
+        return self._db
+
+    def post(self):
+        code = self.get_argument('code')
+        region = self.get_argument('region')
+        journal = self.get_argument('journal')
+        iso_date = date.isoformat(date.today())
+        month_date = iso_date[:7]
+
+        self.db.accesses.update(
+            {'code': code},
+            {'$set': {'type': 'issue', 'journal': journal}, '$inc': {region: 1, iso_date: 1, month_date: 1, 'total': 1}},
+            safe=False,
+            upsert=True
+        )
+
+    @tornado.web.asynchronous
+    def get(self):
+        code = self.get_argument('code')
+        self.db.accesses.find_one({"code": code}, limit=1, callback=self._on_get_response)
+
+    def _on_get_response(self, response, error):
+        if error:
+            raise tornado.web.HTTPError(500)
+
+        self.write(str(response))
+        self.finish()
 
 
 class JournalHandler(tornado.web.RequestHandler):
@@ -64,8 +167,8 @@ class JournalHandler(tornado.web.RequestHandler):
         month_date = iso_date[:7]
 
         self.db.accesses.update(
-            {"code": code},
-            {'$inc': {region: 1, iso_date: 1, month_date: 1, 'total': 1}},
+            {'code': code},
+            {'$set': {'type': 'article'}, '$inc': {region: 1, iso_date: 1, month_date: 1, 'total': 1}},
             safe=False,
             upsert=True
         )
