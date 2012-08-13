@@ -9,100 +9,81 @@ POST Services
 
 The post http method will be used to register the access stats.
 
--------
-Article
--------
+--------------------------
+Register an article access
+--------------------------
 
 **resource:** /api/v1/article
 
-**Parameters**
+Parameters
+----------
 
-**code:** md5(article_title_english + 1st author name + 1s author surname)
+**code:** any code that unicly represents an article
 
-**journal:** journal_id - Latindex Journal ID
+**journal:** any code that unicly represents a journal
 
-**issue:** md5(journal_id + year + volume + number)
+**issue:**  any code that unicly represents an issue
 
 **region:** 3 letters iso country code
 
 Query Sample
 ------------
 
-For this sample we are using the ISSN as journal id instead of the Latindex Journal ID.
+    /api/v1/article?code=41469714ad84732ad79ffb7ccae00fc5&region=bra&journal=1981-6723&issue=a891dc829a40e104c112fd3b0f100e25
 
-The code MD5 string was generated for physicalandsensoryevaluationofwheatandricebrancookiesvivianfeddern
-
-The issue MD5 string was generated for 1981-67232011001400004
-
-/api/v1/article?code=41469714ad84732ad79ffb7ccae00fc5&region=bra&journal=1981-6723&issue=a891dc829a40e104c112fd3b0f100e25
-
----
-PDF
----
+---------------------
+Register a PDF access
+---------------------
 
 **resource:** /api/v1/pdf
 
-**Parameters**
+Parameters
+----------
 
-**code:** md5(article_title_english + 1st author name + 1s author surname)
+**code:** any code that unicly represents an article
 
-**journal:** Latindex Journal ID
+**journal:** any code that unicly represents a journal
 
-**issue:** md5(latindex journal id + year + volume + number)
+**issue:**  any code that unicly represents an issue
 
-**region:** 3 letters iso country code 
+**region:** 3 letters iso country code
 
 **access_date:** access date iso format (YYYY-MM-DD)
 
 Query Sample
 ------------
 
-For this sample we are using the ISSN as journal id instead of the Latindex Journal ID.
+    /api/v1/pdf?code=41469714ad84732ad79ffb7ccae00fc5&region=bra&journal=1981-6723&issue=a891dc829a40e104c112fd3b0f100e25&access_date=2012-08-09
 
-The code MD5 string was generated for physicalandsensoryevaluationofwheatandricebrancookiesvivianfeddern
-
-The issue MD5 string was generated for 1981-67232011001400004
-
-/api/v1/pdf?code=41469714ad84732ad79ffb7ccae00fc5&region=bra&journal=1981-6723&issue=a891dc829a40e104c112fd3b0f100e25&access_date=2012-08-09
-
------
-Issue
------
+------------------------
+Register an issue access
+------------------------
 
 **resource:** /api/v1/issue
 
-**Parameters**
+Parameters
+----------
 
-**code:** md5(latindex journal id + year + volume + number + S for supplement)
+**code:** any code that unicly represents an article
 
-**journal:** Latindex Journal ID
+**journal:** any code that unicly represents a journal
 
-**region:** 3 letters iso country code 
+**region:** 3 letters iso country code
+
 
 Query Sample
 ------------
 
-For this sample we are using the ISSN as journal id instead of the Latindex Journal ID.
+    /api/v1/issue?code=a891dc829a40e104c112fd3b0f100e25&region=bra&journal=1981-6723
 
-**Registering access to an ordinary issue**
-
-The MD5 string was generated for 1981-67232011001400004
-
-/api/v1/issue?code=a891dc829a40e104c112fd3b0f100e25&region=bra&journal=1981-6723
-
-**Registering access to an supplement issue**
-
-The MD5 string was generated for 1981-67232011001400004S
-
-/api/v1/issue?code=464071f8104ff633a7c5359d6e29f1c8&region=bra&journal=1981-6723
-
--------
-Journal
--------
+-------------------------
+Register a journal access
+-------------------------
 
 **resource:** /api/v1/journal
 
-**Parameters**
+Parameters
+----------
 
 **code:** latindex Journal ID
 
@@ -111,7 +92,7 @@ Journal
 Query Sample
 ------------
 
-/api/v1/journal?code=1981-6723&region=bra
+    /api/v1/journal?code=1981-6723&region=bra
 
 
 GET Services
@@ -119,13 +100,14 @@ GET Services
 
 The GET HTTP method will be used to request the access stats.
 
--------
-Article
--------
+-------------------------------
+Retrieve acceses from an article
+-------------------------------
 
 **resource:** /api/v1/article
 
-**Parameters**
+Parameters
+----------
 
 **code:** md5(article_title_english + 1st author name + 1s author surname)
 
@@ -134,11 +116,11 @@ Query Sample
 
 The code MD5 string was generated for physicalandsensoryevaluationofwheatandricebrancookiesvivianfeddern
 
-/api/v1/article?code=41469714ad84732ad79ffb7ccae00fc5
+    /api/v1/article?code=41469714ad84732ad79ffb7ccae00fc5
 
------
-Issue
------
+-------------------------------
+Retrieve accesses from an issue
+-------------------------------
 
 **resource:** /api/v1/issue
 
@@ -151,15 +133,16 @@ For this sample we are using the ISSN as journal id instead of the Latindex Jour
 
 The MD5 string was generated for 1981-67232011001400004
 
-/api/v1/issue?code=a891dc829a40e104c112fd3b0f100e25
+    /api/v1/issue?code=a891dc829a40e104c112fd3b0f100e25
 
--------
-Journal
--------
+--------------------------------
+Retrieve accesses from a journal
+--------------------------------
 
 **resource:** /api/v1/journal
 
-**Parameters**
+Parameters
+----------
 
 **code:** latindex Journal ID
 
@@ -170,4 +153,4 @@ For this sample we are using the ISSN as journal id instead of the Latindex Jour
 
 The MD5 string was generated for 1981-67232011001400004
 
-/api/v1/issue?code=1981-6723
+    /api/v1/issue?code=1981-6723
