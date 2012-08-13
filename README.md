@@ -18,10 +18,11 @@ Pre-requirements
 Creating Virtual Environment
 ----------------------------
 
-code::
+code-block::
 
     mkdir ratched
     cd ratchet
     virtualenv --no-site-packages ratchet-env
+    source ratchet-env/bin/activate
     pip install -r requirements.txt
 
