@@ -40,8 +40,6 @@ MongoDB could be installed at the virtual environment ratchet-env if it is not i
 
 **Installing MongoDB**
 
-block::
-
     cd ratchet-env/bin
     wget http://fastdl.mongodb.org/linux/mongodb-linux-x86_64-2.0.7.tgz
     tar -xvf mongodb-linux-x86_64-2.0.7.tgz
@@ -51,19 +49,15 @@ block::
 
 Just run the script!
 
-block::
-
     ./mongodb_start.sh
 
 Running Server
 ==============
 
-block::
-
     python ratchet.py
 
 By default the server will run at localhost:8888 with the mongoDB server at localhost:27017.
 
-For more details about how customize the server run::
+For more details about how customize the server, run:
 
     python ratchet.py --help
