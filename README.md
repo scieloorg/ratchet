@@ -12,8 +12,8 @@ How to Install
 Pre-requirements
 ----------------
 
-* virtualenv
-* pipy
+* virtualenv (http://www.virtualenv.org/en/latest/index.html#installation)
+* pip (http://www.pip-installer.org/en/latest/installing.html)
 
 Creating Virtual Environment
 ----------------------------
