@@ -1,6 +1,8 @@
 #Sphinx
 _build
 
+analyticst-env
+mongodb.out
 *.py[co]
 
 # Packages
