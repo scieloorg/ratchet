@@ -1,3 +1,6 @@
+#Sphinx
+_build
+
 *.py[co]
 
 # Packages
