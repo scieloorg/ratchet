@@ -5,6 +5,16 @@ Ratchet is an access statistics tool made over Tornado Framework plus MongoDB. T
 thinking in create a common and easy to use tool/api to register accesses made to scientific 
 publications, considering the accesses to the Journals, Issues and articles level.
 
+Downloading Ratchet
+===================
+
+**Clonning from Github**
+
+    git clone git://github.com/scieloorg/ratchet.git
+
+**Downloading**
+
+    https://github.com/scieloorg/ratchet/tags
 
 How to Install
 ==============
@@ -19,17 +29,12 @@ Pre-requirements
 Creating Virtual Environment
 ----------------------------
 
-block::
-
-    mkdir ratched
     cd ratchet
     virtualenv --no-site-packages ratchet-env
     source ratchet-env/bin/activate
 
 Installing the Applications
 ---------------------------
-
-block::
 
     pip install -r requirements.txt
 
