@@ -1,8 +1,9 @@
 #Sphinx
 _build
 
-analyticst-env
+ratchet-env
 mongodb.out
+
 *.py[co]
 
 # Packages
