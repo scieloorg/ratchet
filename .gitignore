@@ -3,6 +3,7 @@ _build
 
 ratchet-env
 mongodb.out
+database/*
 
 *.py[co]
 
