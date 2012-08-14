@@ -13,86 +13,86 @@ The post http method will be used to register the access stats.
 Register an article access
 --------------------------
 
-**resource:** /api/v1/article
+    **resource:** /api/v1/article
 
-Parameters
-----------
+    Parameters
+    ----------
 
-**code:** any code that unicly represents an article
+    **code:** any code that unicly represents an article
 
-**journal:** any code that unicly represents a journal
+    **journal:** any code that unicly represents a journal
 
-**issue:**  any code that unicly represents an issue
+    **issue:**  any code that unicly represents an issue
 
-**region:** 3 letters iso country code
+    **region:** 3 letters iso country code
 
-Query Sample
-------------
+    Query Sample
+    ------------
 
-    /api/v1/article?code=41469714ad84732ad79ffb7ccae00fc5&region=bra&journal=1981-6723&issue=a891dc829a40e104c112fd3b0f100e25
+        /api/v1/article?code=41469714ad84732ad79ffb7ccae00fc5&region=bra&journal=1981-6723&issue=a891dc829a40e104c112fd3b0f100e25
 
 ---------------------
 Register a PDF access
 ---------------------
 
-**resource:** /api/v1/pdf
+    **resource:** /api/v1/pdf
 
-Parameters
-----------
+    Parameters
+    ----------
 
-**code:** any code that unicly represents an article
+    **code:** any code that unicly represents an article
 
-**journal:** any code that unicly represents a journal
+    **journal:** any code that unicly represents a journal
 
-**issue:**  any code that unicly represents an issue
+    **issue:**  any code that unicly represents an issue
 
-**region:** 3 letters iso country code
+    **region:** 3 letters iso country code
 
-**access_date:** access date iso format (YYYY-MM-DD)
+    **access_date:** access date iso format (YYYY-MM-DD)
 
-Query Sample
-------------
+    Query Sample
+    ------------
 
-    /api/v1/pdf?code=41469714ad84732ad79ffb7ccae00fc5&region=bra&journal=1981-6723&issue=a891dc829a40e104c112fd3b0f100e25&access_date=2012-08-09
+        /api/v1/pdf?code=41469714ad84732ad79ffb7ccae00fc5&region=bra&journal=1981-6723&issue=a891dc829a40e104c112fd3b0f100e25&access_date=2012-08-09
 
 ------------------------
 Register an issue access
 ------------------------
 
-**resource:** /api/v1/issue
+    **resource:** /api/v1/issue
 
-Parameters
-----------
+    Parameters
+    ----------
 
-**code:** any code that unicly represents an article
+    **code:** any code that unicly represents an article
 
-**journal:** any code that unicly represents a journal
+    **journal:** any code that unicly represents a journal
 
-**region:** 3 letters iso country code
+    **region:** 3 letters iso country code
 
 
-Query Sample
-------------
+    Query Sample
+    ------------
 
-    /api/v1/issue?code=a891dc829a40e104c112fd3b0f100e25&region=bra&journal=1981-6723
+        /api/v1/issue?code=a891dc829a40e104c112fd3b0f100e25&region=bra&journal=1981-6723
 
 -------------------------
 Register a journal access
 -------------------------
 
-**resource:** /api/v1/journal
+    **resource:** /api/v1/journal
 
-Parameters
-----------
+    Parameters
+    ----------
 
-**code:** latindex Journal ID
+    **code:** latindex Journal ID
 
-**region:** 3 letters iso country code (http://en.wikipedia.org/wiki/ISO_3166-1)
+    **region:** 3 letters iso country code (http://en.wikipedia.org/wiki/ISO_3166-1)
 
-Query Sample
-------------
+    Query Sample
+    ------------
 
-    /api/v1/journal?code=1981-6723&region=bra
+        /api/v1/journal?code=1981-6723&region=bra
 
 
 GET Services
@@ -104,53 +104,53 @@ The GET HTTP method will be used to request the access stats.
 Retrieve acceses from an article
 -------------------------------
 
-**resource:** /api/v1/article
+    **resource:** /api/v1/article
 
-Parameters
-----------
+    Parameters
+    ----------
 
-**code:** md5(article_title_english + 1st author name + 1s author surname)
+    **code:** md5(article_title_english + 1st author name + 1s author surname)
 
-Query Sample
-------------
+    Query Sample
+    ------------
 
-The code MD5 string was generated for physicalandsensoryevaluationofwheatandricebrancookiesvivianfeddern
+    The code MD5 string was generated for physicalandsensoryevaluationofwheatandricebrancookiesvivianfeddern
 
-    /api/v1/article?code=41469714ad84732ad79ffb7ccae00fc5
+        /api/v1/article?code=41469714ad84732ad79ffb7ccae00fc5
 
 -------------------------------
 Retrieve accesses from an issue
 -------------------------------
 
-**resource:** /api/v1/issue
+    **resource:** /api/v1/issue
 
-**code:** md5(journal_id + year + volume + number)
+    **code:** md5(journal_id + year + volume + number)
 
-Query Sample
-------------
+    Query Sample
+    ------------
 
-For this sample we are using the ISSN as journal id instead of the Latindex Journal ID.
+    For this sample we are using the ISSN as journal id instead of the Latindex Journal ID.
 
-The MD5 string was generated for 1981-67232011001400004
+    The MD5 string was generated for 1981-67232011001400004
 
-    /api/v1/issue?code=a891dc829a40e104c112fd3b0f100e25
+        /api/v1/issue?code=a891dc829a40e104c112fd3b0f100e25
 
 --------------------------------
 Retrieve accesses from a journal
 --------------------------------
 
-**resource:** /api/v1/journal
+    **resource:** /api/v1/journal
 
-Parameters
-----------
+    Parameters
+    ----------
 
-**code:** latindex Journal ID
+    **code:** latindex Journal ID
 
-Query Sample
-------------
+    Query Sample
+    ------------
 
-For this sample we are using the ISSN as journal id instead of the Latindex Journal ID.
+    For this sample we are using the ISSN as journal id instead of the Latindex Journal ID.
 
-The MD5 string was generated for 1981-67232011001400004
+    The MD5 string was generated for 1981-67232011001400004
 
-    /api/v1/issue?code=1981-6723
+        /api/v1/issue?code=1981-6723
