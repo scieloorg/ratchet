@@ -2,7 +2,7 @@
 API Reference
 =============
 
-This tool will mainly work with an API to register access stats and to recover statistics from journals, issues and articles.
+This tool will mainly work as an API to register access stats and to recover statistics from journals, issues and articles.
 
 POST Services
 =============
