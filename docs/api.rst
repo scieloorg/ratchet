@@ -85,9 +85,9 @@ Register a journal access
     Parameters
     ----------
 
-    **code:** latindex Journal ID
+        **code:** latindex Journal ID
 
-    **region:** 3 letters iso country code (http://en.wikipedia.org/wiki/ISO_3166-1)
+        **region:** 3 letters iso country code (http://en.wikipedia.org/wiki/ISO_3166-1)
 
     Query Sample
     ------------
@@ -100,21 +100,19 @@ GET Services
 
 The GET HTTP method will be used to request the access stats.
 
--------------------------------
+--------------------------------
 Retrieve acceses from an article
--------------------------------
+--------------------------------
 
     **resource:** /api/v1/article
 
     Parameters
     ----------
 
-    **code:** md5(article_title_english + 1st author name + 1s author surname)
+        **code:** any code that uniquely represents an article
 
     Query Sample
     ------------
-
-    The code MD5 string was generated for physicalandsensoryevaluationofwheatandricebrancookiesvivianfeddern
 
         /api/v1/article?code=41469714ad84732ad79ffb7ccae00fc5
 
@@ -124,14 +122,13 @@ Retrieve accesses from an issue
 
     **resource:** /api/v1/issue
 
-    **code:** md5(journal_id + year + volume + number)
+    Parameters
+    ----------
+
+        **code:** any code that uniquely represents an issue
 
     Query Sample
     ------------
-
-    For this sample we are using the ISSN as journal id instead of the Latindex Journal ID.
-
-    The MD5 string was generated for 1981-67232011001400004
 
         /api/v1/issue?code=a891dc829a40e104c112fd3b0f100e25
 
@@ -144,13 +141,9 @@ Retrieve accesses from a journal
     Parameters
     ----------
 
-    **code:** latindex Journal ID
+        **code:** latindex Journal ID
 
     Query Sample
     ------------
-
-    For this sample we are using the ISSN as journal id instead of the Latindex Journal ID.
-
-    The MD5 string was generated for 1981-67232011001400004
 
         /api/v1/issue?code=1981-6723
