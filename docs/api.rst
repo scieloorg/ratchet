@@ -2,12 +2,12 @@
 API Reference
 =============
 
-This tool will mainly work as an API to register access stats and to recover statistics from journals, issues and articles.
+    This tool will mainly work as an API to register access stats and to recover statistics from journals, issues and articles.
 
 POST Services
 =============
 
-The post http method will be used to register the access stats.
+    The post http method will be used to register the access stats.
 
 --------------------------
 Register an article access
@@ -35,7 +35,7 @@ Query Sample
 Register a PDF access
 ---------------------
 
-**resource:** /api/v1/pdf
+    **resource:** /api/v1/pdf
 
 Parameters
 ----------
@@ -59,7 +59,7 @@ Query Sample
 Register an issue access
 ------------------------
 
-**resource:** /api/v1/issue
+    **resource:** /api/v1/issue
 
 Parameters
 ----------
@@ -80,7 +80,7 @@ Query Sample
 Register a journal access
 -------------------------
 
-**resource:** /api/v1/journal
+    **resource:** /api/v1/journal
 
 Parameters
 ----------
@@ -98,13 +98,13 @@ Query Sample
 GET Services
 ============
 
-The GET HTTP method will be used to request the access stats.
+    The GET HTTP method will be used to request the access stats.
 
 --------------------------------
 Retrieve acceses from an article
 --------------------------------
 
-**resource:** /api/v1/article
+    **resource:** /api/v1/article
 
 Parameters
 ----------
@@ -120,7 +120,7 @@ Query Sample
 Retrieve accesses from an issue
 -------------------------------
 
-**resource:** /api/v1/issue
+    **resource:** /api/v1/issue
 
 Parameters
 ----------
@@ -136,7 +136,7 @@ Query Sample
 Retrieve accesses from a journal
 --------------------------------
 
-**resource:** /api/v1/journal
+    **resource:** /api/v1/journal
 
 Parameters
 ----------
