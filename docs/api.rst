@@ -18,11 +18,11 @@ Register an article access
     Parameters
     ----------
 
-    **code:** any code that unicly represents an article
+    **code:** any code that uniquely represents an article
 
-    **journal:** any code that unicly represents a journal
+    **journal:** any code that uniquely represents a journal
 
-    **issue:**  any code that unicly represents an issue
+    **issue:**  any code that uniquely represents an issue
 
     **region:** 3 letters iso country code
 
@@ -40,11 +40,11 @@ Register a PDF access
     Parameters
     ----------
 
-    **code:** any code that unicly represents an article
+    **code:** any code that uniquely represents an article
 
-    **journal:** any code that unicly represents a journal
+    **journal:** any code that uniquely represents a journal
 
-    **issue:**  any code that unicly represents an issue
+    **issue:**  any code that uniquely represents an issue
 
     **region:** 3 letters iso country code
 
@@ -64,9 +64,9 @@ Register an issue access
     Parameters
     ----------
 
-    **code:** any code that unicly represents an article
+    **code:** any code that uniquely represents an article
 
-    **journal:** any code that unicly represents a journal
+    **journal:** any code that uniquely represents a journal
 
     **region:** 3 letters iso country code
 
