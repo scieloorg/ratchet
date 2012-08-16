@@ -146,7 +146,7 @@ class JournalHandler(tornado.web.RequestHandler):
 
         self.db.accesses.update(
             {'code': code},
-            {'$set': {'type': 'article'}, '$inc': {region: 1, iso_date: 1, month_date: 1, 'total': 1}},
+            {'$set': {'type': 'journal'}, '$inc': {region: 1, iso_date: 1, month_date: 1, 'total': 1}},
             safe=False,
             upsert=True
         )

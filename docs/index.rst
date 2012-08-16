@@ -24,6 +24,7 @@ Contents:
    architecture.rst
    concepts.rst
    api.rst
+   api_samples.rst
    howtoinstall.rst
 
 
