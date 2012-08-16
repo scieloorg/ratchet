@@ -30,4 +30,5 @@ Recovering a journal accesses via GET method::
         u'total': 28, 
         u'type': u'journal', 
         u'bra': 28, 
-        u'2012-08-13': 26}FabioBatal
+        u'2012-08-13': 26
+    }
