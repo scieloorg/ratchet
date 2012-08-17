@@ -6,7 +6,7 @@ Compatible with:
  * OSX (Tested)
  * Linux (Tested)
  * Windows (Maybe! Good luck! Who knows?)
- 
+
 Pre-requirements
 ----------------
 
@@ -50,7 +50,7 @@ Running Server
 
     python ratchet.py
 
-By default the server will run at localhost:8888 with the mongoDB server at localhost:27017.
+By default, the server will run at localhost:8888 with the mongoDB server at localhost:27017.
 
 For more details about how customize the server, run:
 
