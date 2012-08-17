@@ -19,6 +19,12 @@ Downloading Ratchet
 How to Install
 ==============
 
+Compatible with: 
+
+ * OSX (Tested)
+ * Linux (Tested)
+ * Windows (Maybe! Good luck! Who knows?)
+
 Pre-requirements
 ----------------
 
@@ -66,3 +72,9 @@ By default the server will run at localhost:8888 with the mongoDB server at loca
 For more details about how customize the server, run:
 
     python ratchet.py --help
+
+Documentation
+=============
+
+All detailed documentations are available at: http://docs.scielo.org/projects/ratchet/en/latest/index.html
+
