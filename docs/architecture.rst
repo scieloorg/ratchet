@@ -12,7 +12,7 @@ Description
 
 **Source A and Source B**
 
-Any instance that have their on statistics context. They could be identified as "local sources"
+Any instance that have their own statistics context. They could be identified as "local sources"
 
 **Global Source**
 
