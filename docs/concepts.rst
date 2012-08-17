@@ -1,7 +1,7 @@
 Concepts
 ========
 
-This tool intends and fits well when registering log access for specific kinds of contents, they are:
+This tool fits well when registering log access for specific kinds of contents, they are:
 
 **Journal Pages**
 
