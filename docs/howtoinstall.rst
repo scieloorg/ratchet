@@ -1,12 +1,19 @@
 How to Install
 ==============
 
+Compatible with: 
+
+ * OSX (Tested)
+ * Linux (Tested)
+ * Windows (Maybe! Good luck! Who knows?)
+ 
 Pre-requirements
 ----------------
 
 * virtualenv (http://www.virtualenv.org/en/latest/index.html#installation)
 * pip (http://www.pip-installer.org/en/latest/installing.html)
 * mongodb (http://www.mongodb.org/downloads)
+* Tornado (http://www.tornadoweb.org/)
 
 Creating Virtual Environment
 ----------------------------
