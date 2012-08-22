@@ -100,6 +100,54 @@ GET Services
 
     The GET HTTP method will be used to request the access stats.
 
+-------------
+Checking Resource Type
+-------------
+
+    **resource:** /
+
+Query Sample
+------------
+
+    /
+
+    Response Sample for **local** resource::
+
+        {
+            Another Ratchet Local Resource
+        }
+
+    Response Sample for **global** resource::
+
+        {
+            Another Ratchet Local Resource
+        }
+
+-------------------------------
+Cheking the available resources
+-------------------------------
+
+    alert::
+
+        Available when the api is configured as a Global Resource
+
+    **resource:** /api/v1/resources
+
+Query Sample
+------------
+
+    /api/v1/resources
+
+    Response Sample::
+
+        {
+            'http://127.0.0.1:8880/': 'online', 
+            'http://127.0.0.1:8890/': 'online', 
+            'http://127.0.0.1:8860/': 'online', 
+            'http://127.0.0.1:8870/': 'offline'
+        }
+
+
 --------------------------------
 Retrieve acceses from an article
 --------------------------------
