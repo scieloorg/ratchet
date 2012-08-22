@@ -111,7 +111,7 @@ class PdfHandler(tornado.web.RequestHandler):
 
 class ArticleHandler(tornado.web.RequestHandler):
 
-    def _noop_callback(self, response, error):
+    def _remove_callback(self, response, error):
         pass
 
     def _on_get_response(self, response, error):
@@ -132,12 +132,13 @@ class ArticleHandler(tornado.web.RequestHandler):
         code = self.get_argument('code')
         region = self.get_argument('region')
         journal = self.get_argument('journal')
+        issue = self.get_argument('issue')
         iso_date = date.isoformat(date.today())
         month_date = iso_date[:7]
 
         self.db.accesses.update(
             {'code': code},
-            {'$set': {'type': 'article', 'journal': journal}, '$inc': {region: 1, iso_date: 1, month_date: 1, 'total': 1}},
+            {'$set': {'type': 'article', 'journal': journal, 'issue': issue}, '$inc': {region: 1, iso_date: 1, month_date: 1, 'total': 1}},
             safe=False,
             upsert=True
         )
@@ -146,27 +147,38 @@ class ArticleHandler(tornado.web.RequestHandler):
     def get(self):
         code = self.get_argument('code')
 
-        old_data = self.db.accesses.find_one({"code": code}, limit=1, callback=self._noop_callback)
-        tornado.ioloop.IOLoop.instance().start()
+        if self.application.api_style == 'global':
+            self.db.accesses.remove({'code': code}, callback=self._remove_callback)
 
-        journal = old_data['journal']
+            for resource in self.application.resources:
+                url = "http://%s/api/v1/article?code=%s" % (resource, code)
+                try:
+                    data = urllib2.urlopen(url).read().replace("'", '"').replace('u"', '"')
+                    if data:
+                        data = json.loads(data)
+                        str_data = {'journal': data['journal'], 'issue': data['issue'], 'type': 'article'}
+                        del(data['code'])
+                        del(data['type'])
+                        del(data['journal'])
+                        del(data['issue'])
+                        self.db.accesses.update(
+                            {'code': code},
+                            {'$inc': data, '$set': str_data},
+                            safe=False,
+                            upsert=True
+                        )
+                except URLError:
+                    continue
+                    # must register error log
 
-        if self.api_style == 'global':
-            self.db.accesses.remove({'code': code})
-            for resource in self.resources:
-                url = "http://%s/api/v1/journal?code=%s" % (resource, code)
-                data = urllib2.urlopen(url).read()
-                self.db.accesses.update(
-                    {'code': code},
-                    {'$set': {'type': 'article', 'journal': journal}, '$inc': data},
-                    safe=False,
-                    upsert=True
-                )
-
-        self.db.accesses.find({"code": code}, {"_id": 0}, limit=1, callback=self._on_get_response)
+        self.db.accesses.find({"code": code, "type": "article"}, {"_id": 0}, limit=1, callback=self._on_get_response)
 
 
 class IssueHandler(tornado.web.RequestHandler):
+
+    def _remove_callback(self, response, error):
+        pass
+
     def _on_get_response(self, response, error):
         if error:
             raise tornado.web.HTTPError(500)
@@ -198,7 +210,31 @@ class IssueHandler(tornado.web.RequestHandler):
     @tornado.web.asynchronous
     def get(self):
         code = self.get_argument('code')
-        self.db.accesses.find({"code": code}, {"_id": 0}, limit=1, callback=self._on_get_response)
+
+        if self.application.api_style == 'global':
+            self.db.accesses.remove({'code': code}, callback=self._remove_callback)
+
+            for resource in self.application.resources:
+                url = "http://%s/api/v1/issue?code=%s" % (resource, code)
+                try:
+                    data = urllib2.urlopen(url).read().replace("'", '"').replace('u"', '"')
+                    if data:
+                        data = json.loads(data)
+                        str_data = {'journal': data['journal'], 'type': 'issue'}
+                        del(data['code'])
+                        del(data['type'])
+                        del(data['journal'])
+                        self.db.accesses.update(
+                            {'code': code},
+                            {'$inc': data, '$set': str_data},
+                            safe=False,
+                            upsert=True
+                        )
+                except URLError:
+                    continue
+                    # must register error log
+
+        self.db.accesses.find({"code": code, "type": "issue"}, {"_id": 0}, limit=1, callback=self._on_get_response)
 
 
 class JournalHandler(tornado.web.RequestHandler):
@@ -243,20 +279,22 @@ class JournalHandler(tornado.web.RequestHandler):
             for resource in self.application.resources:
                 url = "http://%s/api/v1/journal?code=%s" % (resource, code)
                 try:
-                    data = json.loads(urllib2.urlopen(url).read().replace("'", '"').replace('u', ''))
-                    del(data['code'])
-                    del(data['type'])
-                    self.db.accesses.update(
-                        {'code': code},
-                        {'$set': {'type': 'journal'}, '$inc': data},
-                        safe=False,
-                        upsert=True
-                    )
+                    data = urllib2.urlopen(url).read().replace("'", '"').replace('u"', '"')
+                    if data:
+                        data = json.loads(data)
+                        del(data['code'])
+                        del(data['type'])
+                        self.db.accesses.update(
+                            {'code': code},
+                            {'$set': {'type': 'journal'}, '$inc': data},
+                            safe=False,
+                            upsert=True
+                        )
                 except URLError:
                     continue
                     # must register error log
 
-        self.db.accesses.find({"code": code}, {"_id": 0}, limit=1, callback=self._on_get_response)
+        self.db.accesses.find({"code": code, "type": "journal"}, {"_id": 0}, limit=1, callback=self._on_get_response)
 
 if __name__ == '__main__':
     tornado.options.parse_command_line()
