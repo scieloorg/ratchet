@@ -64,9 +64,9 @@ class Application(tornado.web.Application):
 class RootHandler(tornado.web.RequestHandler):
     def get(self):
         if self.application.api_style == 'global':
-            self.write("Another Ratchet Local Resource")
-        else:
             self.write("Another Ratchet Global Resource")
+        else:
+            self.write("Another Ratchet Local Resource")
         self.finish()
 
 

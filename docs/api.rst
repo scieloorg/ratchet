@@ -120,7 +120,7 @@ Query Sample
     Response Sample for **global** resource::
 
         {
-            Another Ratchet Local Resource
+            Another Ratchet Global Resource
         }
 
 -------------------------------
