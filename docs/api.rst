@@ -100,9 +100,9 @@ GET Services
 
     The GET HTTP method will be used to request the access stats.
 
--------------
+----------------------
 Checking Resource Type
--------------
+----------------------
 
     **resource:** /
 
