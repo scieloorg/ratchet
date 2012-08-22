@@ -4,16 +4,16 @@ from tornado import (
     options,
     web
     )
-
 from tornado.options import (
     define,
     options
     )
-
 from datetime import date
 import tornado
 import asyncmongo
 import urllib2
+from urllib2 import URLError
+import json
 
 define("port", default=8888, help="run on the given port", type=int)
 define("mongodb_port", default=27017, help="run MongoDB on the given port", type=int)
@@ -22,11 +22,13 @@ define("mongodb_database", default='analytics', help="Record accesses on the giv
 define("mongodb_max_connections", default=200, help="run MongoDB with the given max connections", type=int)
 define("mongodb_max_cached", default=20, help="run MongoDB with the given max cached", type=int)
 define("resources", default=None, help="indicates a txt file with api resources. Once this parameter is defined, the API will just work as accesses delivery.", type=str)
+define("allowed_hosts", default=None, help="indicates a txt file with hostnames allowed to post data.", type=str)
 
 
 class Application(tornado.web.Application):
     def __init__(self):
         handlers = [
+            (r"/", RootHandler),
             (r"/api/v1/journal", JournalHandler),
             (r"/api/v1/issue", IssueHandler),
             (r"/api/v1/article", ArticleHandler),
@@ -54,8 +56,35 @@ class Application(tornado.web.Application):
 
             if len(self.resources) > 0:
                 self.api_style = 'global'
+                handlers.append((r"/api/v1/resources", ResourcesHandler))
 
         tornado.web.Application.__init__(self, handlers)
+
+
+class RootHandler(tornado.web.RequestHandler):
+    def get(self):
+        if self.application.api_style == 'global':
+            self.write("Another Ratchet Local Resource")
+        else:
+            self.write("Another Ratchet Global Resource")
+        self.finish()
+
+
+class ResourcesHandler(tornado.web.RequestHandler):
+
+    def get(self):
+        response = {}
+        for resource in self.application.resources:
+            url = "http://%s/" % resource.strip()
+            try:
+                urllib2.urlopen(url)
+                response[url] = 'online'
+            except URLError:
+                response[url] = 'offline'
+                continue
+
+        self.write(str(response))
+        self.finish()
 
 
 class PdfHandler(tornado.web.RequestHandler):
@@ -81,6 +110,19 @@ class PdfHandler(tornado.web.RequestHandler):
 
 
 class ArticleHandler(tornado.web.RequestHandler):
+
+    def _noop_callback(self, response, error):
+        pass
+
+    def _on_get_response(self, response, error):
+        if error:
+            raise tornado.web.HTTPError(500)
+
+        if len(response) > 0:
+            self.write(str(response[0]))
+
+        self.finish()
+
     @property
     def db(self):
         self._db = self.application.db
@@ -104,7 +146,9 @@ class ArticleHandler(tornado.web.RequestHandler):
     def get(self):
         code = self.get_argument('code')
 
-        old_data = self.db.accesses.find_one({"code": code}, limit=1)
+        old_data = self.db.accesses.find_one({"code": code}, limit=1, callback=self._noop_callback)
+        tornado.ioloop.IOLoop.instance().start()
+
         journal = old_data['journal']
 
         if self.api_style == 'global':
@@ -119,17 +163,19 @@ class ArticleHandler(tornado.web.RequestHandler):
                     upsert=True
                 )
 
-        self.db.accesses.find_one({"code": code}, limit=1, callback=self._on_get_response)
+        self.db.accesses.find({"code": code}, {"_id": 0}, limit=1, callback=self._on_get_response)
 
+
+class IssueHandler(tornado.web.RequestHandler):
     def _on_get_response(self, response, error):
         if error:
             raise tornado.web.HTTPError(500)
 
-        self.write(str(response))
+        if len(response) > 0:
+            self.write(str(response[0]))
+
         self.finish()
 
-
-class IssueHandler(tornado.web.RequestHandler):
     @property
     def db(self):
         self._db = self.application.db
@@ -152,17 +198,22 @@ class IssueHandler(tornado.web.RequestHandler):
     @tornado.web.asynchronous
     def get(self):
         code = self.get_argument('code')
-        self.db.accesses.find_one({"code": code}, limit=1, callback=self._on_get_response)
+        self.db.accesses.find({"code": code}, {"_id": 0}, limit=1, callback=self._on_get_response)
+
+
+class JournalHandler(tornado.web.RequestHandler):
+
+    def _remove_callback(self, response, error):
+        pass
 
     def _on_get_response(self, response, error):
         if error:
             raise tornado.web.HTTPError(500)
 
-        self.write(str(response))
+        if len(response) > 0:
+            self.write(str(response[0]))
+
         self.finish()
-
-
-class JournalHandler(tornado.web.RequestHandler):
 
     @property
     def db(self):
@@ -185,14 +236,27 @@ class JournalHandler(tornado.web.RequestHandler):
     @tornado.web.asynchronous
     def get(self):
         code = self.get_argument('code')
-        self.db.accesses.find_one({"code": code}, limit=1, callback=self._on_get_response)
 
-    def _on_get_response(self, response, error):
-        if error:
-            raise tornado.web.HTTPError(500)
+        if self.application.api_style == 'global':
+            self.db.accesses.remove({'code': code}, callback=self._remove_callback)
 
-        self.write(str(response))
-        self.finish()
+            for resource in self.application.resources:
+                url = "http://%s/api/v1/journal?code=%s" % (resource, code)
+                try:
+                    data = json.loads(urllib2.urlopen(url).read().replace("'", '"').replace('u', ''))
+                    del(data['code'])
+                    del(data['type'])
+                    self.db.accesses.update(
+                        {'code': code},
+                        {'$set': {'type': 'journal'}, '$inc': data},
+                        safe=False,
+                        upsert=True
+                    )
+                except URLError:
+                    continue
+                    # must register error log
+
+        self.db.accesses.find({"code": code}, {"_id": 0}, limit=1, callback=self._on_get_response)
 
 if __name__ == '__main__':
     tornado.options.parse_command_line()
