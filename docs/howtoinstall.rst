@@ -3,9 +3,9 @@ How to Install
 
 Compatible with: 
 
- * OSX (Tested)
- * Linux (Tested)
- * Windows (Maybe! Good luck! Who knows?)
+* OSX (Tested)
+* Linux (Tested)
+* Windows (Maybe! Good luck! Who knows?)
 
 Pre-requirements
 ----------------
@@ -28,7 +28,7 @@ Installing the Applications
 ---------------------------
 
     Installing the requirements::
-    
+
         source ratchet-env/bin/activate
         pip install -r requirements.txt
 
