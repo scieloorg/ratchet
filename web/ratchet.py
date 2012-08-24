@@ -1,19 +1,22 @@
+import urllib
+import urllib2
+import json
+from datetime import date
+
 from tornado import (
     httpserver,
+    httpclient,
     ioloop,
     options,
-    web
+    web,
+    gen
     )
 from tornado.options import (
     define,
     options
     )
-from datetime import date
 import tornado
 import asyncmongo
-import urllib2
-from urllib2 import URLError
-import json
 
 define("port", default=8888, help="run on the given port", type=int)
 define("mongodb_port", default=27017, help="run MongoDB on the given port", type=int)
@@ -23,6 +26,7 @@ define("mongodb_max_connections", default=200, help="run MongoDB with the given 
 define("mongodb_max_cached", default=20, help="run MongoDB with the given max cached", type=int)
 define("resources", default=None, help="indicates a txt file with api resources. Once this parameter is defined, the API will just work as accesses delivery.", type=str)
 define("allowed_hosts", default=None, help="indicates a txt file with hostnames allowed to post data.", type=str)
+define("broadcast_timeout", default=1, help="indicates the max timeout in seconds that the broadcast must finish.", type=str)
 
 
 class Application(tornado.web.Application):
@@ -45,10 +49,9 @@ class Application(tornado.web.Application):
         )
 
         # Local is the default the default way that ratchet works.
+        self.broadcast_timeout = options.broadcast_timeout
         self.api_style = 'local'
-
         self.resources = []
-
         if options.resources:
             with open(options.resources) as f:
                 for line in f:
@@ -79,7 +82,7 @@ class ResourcesHandler(tornado.web.RequestHandler):
             try:
                 urllib2.urlopen(url)
                 response[url] = 'online'
-            except URLError:
+            except urllib2.URLError:
                 response[url] = 'offline'
                 continue
 
@@ -167,7 +170,7 @@ class ArticleHandler(tornado.web.RequestHandler):
                             safe=False,
                             upsert=True
                         )
-                except URLError:
+                except urllib2.URLError:
                     continue
                     # must register error log
 
@@ -230,7 +233,7 @@ class IssueHandler(tornado.web.RequestHandler):
                             safe=False,
                             upsert=True
                         )
-                except URLError:
+                except urllib2.URLError:
                     continue
                     # must register error log
 
@@ -270,31 +273,32 @@ class JournalHandler(tornado.web.RequestHandler):
         )
 
     @tornado.web.asynchronous
+    @tornado.gen.engine
     def get(self):
         code = self.get_argument('code')
 
         if self.application.api_style == 'global':
             self.db.accesses.remove({'code': code}, callback=self._remove_callback)
-
+            http_client = httpclient.AsyncHTTPClient()
             for resource in self.application.resources:
-                url = "http://%s/api/v1/journal?code=%s" % (resource, code)
-                try:
-                    data = urllib2.urlopen(url).read().replace("'", '"').replace('u"', '"')
-                    if data:
-                        data = json.loads(data)
-                        del(data['code'])
-                        del(data['type'])
-                        self.db.accesses.update(
-                            {'code': code},
-                            {'$set': {'type': 'journal'}, '$inc': data},
-                            safe=False,
-                            upsert=True
-                        )
-                except URLError:
-                    continue
-                    # must register error log
+                resource = resource.strip()
+                url = "http://%s/api/v1/journal?%s" % (resource, urllib.urlencode({'code': code}))
+                response = yield tornado.gen.Task(http_client.fetch, url)
+
+                if not response.error:
+                    data = response.body.replace("'", '"').replace('u"', '"')
+                    data = json.loads(data)
+                    del(data['code'])
+                    del(data['type'])
+                    self.db.accesses.update(
+                        {'code': code},
+                        {'$set': {'type': 'journal'}, '$inc': data},
+                        safe=False,
+                        upsert=True
+                    )
 
         self.db.accesses.find({"code": code, "type": "journal"}, {"_id": 0}, limit=1, callback=self._on_get_response)
+
 
 if __name__ == '__main__':
     tornado.options.parse_command_line()
