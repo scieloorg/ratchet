@@ -51,11 +51,12 @@ class Application(tornado.web.Application):
         # Local is the default the default way that ratchet works.
         self.broadcast_timeout = options.broadcast_timeout
         self.api_style = 'local'
-        self.resources = []
+        self.resources = {}
         if options.resources:
             with open(options.resources) as f:
                 for line in f:
-                    self.resources.append(line)
+                    line = line.split(',')
+                    self.resources[line[0]] = line[1]
 
             if len(self.resources) > 0:
                 self.api_style = 'global'
@@ -77,13 +78,17 @@ class ResourcesHandler(tornado.web.RequestHandler):
 
     def get(self):
         response = {}
-        for resource in self.application.resources:
-            url = "http://%s/" % resource.strip()
+        for resource_name, resource_url in self.application.resources.items():
+
+            resource_url = resource_url.strip()
+            url = "http://%s/" % resource_url
+            response[resource_name] = {}
+            response[resource_name]['host'] = resource_url
             try:
                 urllib2.urlopen(url)
-                response[url] = 'online'
+                response[resource_name]['status'] = 'online'
             except urllib2.URLError:
-                response[url] = 'offline'
+                response[resource_name]['status'] = 'offline'
                 continue
 
         self.write(str(response))
@@ -154,7 +159,7 @@ class ArticleHandler(tornado.web.RequestHandler):
         if self.application.api_style == 'global':
             self.db.accesses.remove({'code': code}, callback=self._remove_callback)
             http_client = httpclient.AsyncHTTPClient()
-            for resource in self.application.resources:
+            for resource in self.application.resources.itervalues():
                 resource = resource.strip()
                 url = "http://%s/api/v1/article?%s" % (resource, urllib.urlencode({'code': code}))
                 response = yield tornado.gen.Task(http_client.fetch, url)
@@ -217,7 +222,7 @@ class IssueHandler(tornado.web.RequestHandler):
         if self.application.api_style == 'global':
             self.db.accesses.remove({'code': code}, callback=self._remove_callback)
             http_client = httpclient.AsyncHTTPClient()
-            for resource in self.application.resources:
+            for resource in self.application.resources.itervalues():
                 resource = resource.strip()
                 url = "http://%s/api/v1/issue?%s" % (resource, urllib.urlencode({'code': code}))
                 response = yield tornado.gen.Task(http_client.fetch, url)
@@ -278,7 +283,7 @@ class JournalHandler(tornado.web.RequestHandler):
         if self.application.api_style == 'global':
             self.db.accesses.remove({'code': code}, callback=self._remove_callback)
             http_client = httpclient.AsyncHTTPClient()
-            for resource in self.application.resources:
+            for resource in self.application.resources.itervalues():
                 resource = resource.strip()
                 url = "http://%s/api/v1/journal?%s" % (resource, urllib.urlencode({'code': code}))
                 response = yield tornado.gen.Task(http_client.fetch, url)
