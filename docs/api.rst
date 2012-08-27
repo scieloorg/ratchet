@@ -95,6 +95,41 @@ Query Sample
     /api/v1/journal?code=1981-6723&region=bra
 
 
+-------------
+Bulk accesses 
+-------------
+
+    **resource:** /api/v1/bulk
+
+Parameters
+----------
+
+    **code:** document code
+
+    **document_type:** document type [journal, issue, article]
+
+    **data:** Accesses from a specific document in JSON format.::
+
+    {
+        "2011-10-01": 100,
+        "2011-10-02": 100,
+        "2011-10-02": 100,
+        "2012-10-01": 100,
+        "2012-10-02": 100,
+        "2012-10-03": 100,
+        "2012-10": 300,
+        "total": 600,
+        "bra": 200,
+        "mex": 150,
+        "arg": 200,
+        "col": 50,
+    }
+
+Query Sample
+------------
+
+    /api/v1/journal?code=1981-6723&data=<JSON DATA>
+
 GET Services
 ============
 
