@@ -128,7 +128,7 @@ Parameters
 Query Sample
 ------------
 
-    /api/v1/journal?code=1981-6723&data=<JSON DATA>
+    /api/v1/bulk?code=1981-6723&document_type=journal&data=<JSON DATA>
 
 GET Services
 ============
