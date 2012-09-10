@@ -105,13 +105,14 @@ class PdfHandler(tornado.web.RequestHandler):
         code = self.get_argument('code')
         region = self.get_argument('region')
         journal = self.get_argument('journal')
+        issue = self.get_argument('issue')
         access_date = self.get_argument('access_date')
         iso_date = access_date
         month_date = iso_date[:7]
 
         self.db.accesses.update(
             {'code': code},
-            {'$set': {'type': 'article', 'journal': journal}, '$inc': {region: 1, iso_date: 1, month_date: 1, 'total': 1}},
+            {'$set': {'type': 'article', 'journal': journal, 'issue': issue}, '$inc': {region: 1, iso_date: 1, month_date: 1, 'total': 1}},
             safe=False,
             upsert=True
         )
