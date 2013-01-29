@@ -42,6 +42,7 @@ class Application(tornado.web.Application):
             (r"/api/v1/article", ArticleHandler),
             (r"/api/v1/article/bulk", BulkArticleHandler),
             (r"/api/v1/pdf", PdfHandler),
+            (r"/api/v1/pdf/bulk", BulkPdfHandler),
         ]
 
         self.db = asyncmongo.Client(
@@ -100,6 +101,39 @@ class ResourcesHandler(tornado.web.RequestHandler):
         self.finish()
 
 
+class BulkPdfHandler(tornado.web.RequestHandler):
+
+    @property
+    def db(self):
+        self._db = self.application.db
+        return self._db
+
+    def post(self):
+
+        data = self.get_argument('data', 'No data received')
+
+        data = json.loads(data)
+
+        code = data['code']
+        journal = data['journal']
+        issue = data['issue']
+
+        del data['code']
+        del data['journal']
+        del data['issue']
+
+        pdf_data = {}
+        for key, value in data.items():
+            pdf_data['pdf_' + key] = value
+
+        self.db.accesses.update(
+            {'code': code},
+            {'$set': {'type': 'article', 'journal': journal, 'issue': issue}, '$inc': pdf_data},
+            safe=False,
+            upsert=True
+        )
+
+
 class PdfHandler(tornado.web.RequestHandler):
     @property
     def db(self):
@@ -112,12 +146,12 @@ class PdfHandler(tornado.web.RequestHandler):
         journal = self.get_argument('journal')
         issue = self.get_argument('issue')
         access_date = self.get_argument('access_date')
-        iso_date = access_date
-        month_date = iso_date[:7]
+        iso_date = 'pdf_' + access_date
+        month_date = 'pdf_' + iso_date[:7]
 
         self.db.accesses.update(
             {'code': code},
-            {'$set': {'type': 'article', 'journal': journal, 'issue': issue}, '$inc': {region: 1, iso_date: 1, month_date: 1, 'total': 1}},
+            {'$set': {'type': 'article', 'journal': journal, 'issue': issue}, '$inc': {region: 1, iso_date: 1, month_date: 1, 'pdf_total': 1}},
             safe=False,
             upsert=True
         )
