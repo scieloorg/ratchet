@@ -95,11 +95,11 @@ Query Sample
     /api/v1/journal?code=1981-6723&region=bra
 
 
--------------
-Bulk accesses 
--------------
+---------------------
+Bulk Article Accesses 
+---------------------
 
-    **resource:** /api/v1/bulk
+    **resource:** /api/v1/article/bulk
 
 Parameters
 ----------
@@ -128,7 +128,74 @@ Parameters
 Query Sample
 ------------
 
-    /api/v1/bulk?data=<JSON DATA>
+    /api/v1/article/bulk?data=<JSON DATA>
+
+-------------------
+Bulk Issue Accesses 
+-------------------
+
+    **resource:** /api/v1/issue/bulk
+
+Parameters
+----------
+
+    **data:** Accesses from a specific document in JSON format.::
+
+        {
+            "code": "S0034-891020090004",
+            "journal": "0034-8910",
+            "2011-10-01": 100,
+            "2011-10-02": 100,
+            "2011-10-03": 100,
+            "2012-11-01": 10,
+            "2012-11-02": 10,
+            "2012-11-03": 10,
+            "2012-10": 300,
+            "2012-11": 30,
+            "total": 330,
+            "bra": 200,
+            "mex": 100,
+            "arg": 10,
+            "col": 20
+        }
+
+Query Sample
+------------
+
+    /api/v1/issue/bulk?data=<JSON DATA>
+
+---------------------
+Bulk Journal Accesses 
+---------------------
+
+    **resource:** /api/v1/journal/bulk
+
+Parameters
+----------
+
+    **data:** Accesses from a specific document in JSON format.::
+
+        {
+            "code": "0034-8910",
+            "2011-10-01": 100,
+            "2011-10-02": 100,
+            "2011-10-03": 100,
+            "2012-11-01": 10,
+            "2012-11-02": 10,
+            "2012-11-03": 10,
+            "2012-10": 300,
+            "2012-11": 30,
+            "total": 330,
+            "bra": 200,
+            "mex": 100,
+            "arg": 10,
+            "col": 20
+        }
+
+Query Sample
+------------
+
+    /api/v1/journal/bulk?data=<JSON DATA>
 
 GET Services
 ============
