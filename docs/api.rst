@@ -104,13 +104,12 @@ Bulk accesses
 Parameters
 ----------
 
-    **code:** document code
-
-    **document_type:** document type [journal, issue, article]
-
     **data:** Accesses from a specific document in JSON format.::
 
         {
+            "code": "S0034-89102009000400003",
+            "journal": "0034-8910",
+            "issue": "0034-891020090004",
             "2011-10-01": 100,
             "2011-10-02": 100,
             "2011-10-03": 100,
@@ -123,13 +122,13 @@ Parameters
             "bra": 200,
             "mex": 100,
             "arg": 10,
-            "col": 20,
+            "col": 20
         }
 
 Query Sample
 ------------
 
-    /api/v1/bulk?code=1981-6723&document_type=journal&data=<JSON DATA>
+    /api/v1/bulk?data=<JSON DATA>
 
 GET Services
 ============
