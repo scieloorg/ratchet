@@ -11,10 +11,12 @@ from tornado import (
     web,
     gen
     )
+
 from tornado.options import (
     define,
     options
     )
+
 import tornado
 import asyncmongo
 
@@ -36,6 +38,7 @@ class Application(tornado.web.Application):
             (r"/api/v1/journal", JournalHandler),
             (r"/api/v1/issue", IssueHandler),
             (r"/api/v1/article", ArticleHandler),
+            (r"/api/v1/article/bulk", BulkArticleHandler),
             (r"/api/v1/pdf", PdfHandler),
         ]
 
@@ -113,6 +116,37 @@ class PdfHandler(tornado.web.RequestHandler):
         self.db.accesses.update(
             {'code': code},
             {'$set': {'type': 'article', 'journal': journal, 'issue': issue}, '$inc': {region: 1, iso_date: 1, month_date: 1, 'total': 1}},
+            safe=False,
+            upsert=True
+        )
+
+
+class BulkArticleHandler(tornado.web.RequestHandler):
+
+    @property
+    def db(self):
+        self._db = self.application.db
+        return self._db
+
+    def post(self):
+
+        data = self.get_argument('data', 'No data received')
+
+        data = json.loads(data)
+
+        code = data['code']
+        journal = data['journal']
+        issue = data['issue']
+
+        del data['code']
+        del data['journal']
+        del data['issue']
+
+        print data
+        
+        self.db.accesses.update(
+            {'code': code},
+            {'$set': {'type': 'article', 'journal': journal, 'issue': issue}, '$inc': data},
             safe=False,
             upsert=True
         )
