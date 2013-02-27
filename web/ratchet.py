@@ -151,7 +151,14 @@ class PdfHandler(tornado.web.RequestHandler):
 
         self.db.accesses.update(
             {'code': code},
-            {'$set': {'type': 'article', 'journal': journal, 'issue': issue}, '$inc': {region: 1, iso_date: 1, month_date: 1, 'pdf_total': 1}},
+            {'$set':
+                {
+                    'type': 'article',
+                    'journal': journal,
+                    'issue': issue
+                },
+                '$inc':
+                    {region: 1, iso_date: 1, month_date: 1, 'pdf_total': 1}},
             safe=False,
             upsert=True
         )
@@ -182,7 +189,12 @@ class BulkArticleHandler(tornado.web.RequestHandler):
 
         self.db.accesses.update(
             {'code': code},
-            {'$set': {'type': 'article', 'journal': journal, 'issue': issue}, '$inc': data},
+            {'$set':
+                {
+                    'type': 'article',
+                    'journal': journal,
+                    'issue': issue},
+                '$inc': data},
             safe=False,
             upsert=True
         )
@@ -212,12 +224,28 @@ class ArticleHandler(tornado.web.RequestHandler):
         region = self.get_argument('region')
         journal = self.get_argument('journal')
         issue = self.get_argument('issue')
-        iso_date = date.isoformat(date.today())
-        month_date = iso_date[:7]
+        day = '%02d' % date.today().day
+        month = '%02d' % date.today().month
+        year = '%02d' % date.today().year
+        lday = 'article.y{0}.m{1}.d{2}'.format(year, month, day)
+        lmonth = 'article.y{0}.m{1}.total'.format(year, month)
+        lyear = 'article.y{0}.total'.format(year)
 
         self.db.accesses.update(
             {'code': code},
-            {'$set': {'type': 'article', 'journal': journal, 'issue': issue}, '$inc': {region: 1, iso_date: 1, month_date: 1, 'total': 1}},
+            {'$set':
+                {
+                    'type': 'article',
+                    'journal': journal,
+                    'issue': issue},
+                '$inc':
+                    {
+                        region: 1,
+                        lmonth: 1,
+                        lday: 1,
+                        lyear: 1,
+                        'total': 1}
+                    },
             safe=False,
             upsert=True
         )
@@ -275,7 +303,13 @@ class BulkIssueHandler(tornado.web.RequestHandler):
 
         self.db.accesses.update(
             {'code': code},
-            {'$set': {'type': 'issue', 'journal': journal}, '$inc': data},
+            {'$set':
+                {
+                    'type': 'issue',
+                    'journal': journal
+                },
+                '$inc': data
+            },
             safe=False,
             upsert=True
         )
@@ -304,12 +338,29 @@ class IssueHandler(tornado.web.RequestHandler):
         code = self.get_argument('code')
         region = self.get_argument('region')
         journal = self.get_argument('journal')
-        iso_date = date.isoformat(date.today())
-        month_date = iso_date[:7]
+        day = '%02d' % date.today().day
+        month = '%02d' % date.today().month
+        year = '%02d' % date.today().year
+        lday = 'article.y{0}.m{1}.d{2}'.format(year, month, day)
+        lmonth = 'article.y{0}.m{1}.total'.format(year, month)
+        lyear = 'article.y{0}.total'.format(year)
 
         self.db.accesses.update(
             {'code': code},
-            {'$set': {'type': 'issue', 'journal': journal}, '$inc': {region: 1, iso_date: 1, month_date: 1, 'total': 1}},
+            {'$set':
+                {
+                    'type': 'issue',
+                    'journal': journal
+                },
+                '$inc':
+                    {
+                        region: 1,
+                        lmonth: 1,
+                        lday: 1,
+                        lyear: 1,
+                        'total': 1
+                    }
+                },
             safe=False,
             upsert=True
         )
@@ -392,12 +443,28 @@ class JournalHandler(tornado.web.RequestHandler):
     def post(self):
         code = self.get_argument('code')
         region = self.get_argument('region')
-        iso_date = date.isoformat(date.today())
-        month_date = iso_date[:7]
+        day = '%02d' % date.today().day
+        month = '%02d' % date.today().month
+        year = '%02d' % date.today().year
+        lday = 'article.y{0}.m{1}.d{2}'.format(year, month, day)
+        lmonth = 'article.y{0}.m{1}.total'.format(year, month)
+        lyear = 'article.y{0}.total'.format(year)
 
         self.db.accesses.update(
             {'code': code},
-            {'$set': {'type': 'journal'}, '$inc': {region: 1, iso_date: 1, month_date: 1, 'total': 1}},
+            {'$set':
+                {
+                    'type': 'journal'
+                },
+                '$inc':
+                    {
+                        region: 1,
+                        lmonth: 1,
+                        lday: 1,
+                        lyear: 1,
+                        'total': 1
+                    }
+                },
             safe=False,
             upsert=True
         )
