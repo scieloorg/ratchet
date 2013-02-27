@@ -131,6 +131,43 @@ Query Sample
 
     /api/v1/article/bulk?data=<JSON DATA>
 
+
+------------------
+Bulk PDF Downloads 
+------------------
+
+    **resource:** /api/v1/pdf/bulk
+
+Parameters
+----------
+
+    **data:** Accesses from a specific document in JSON format.::
+
+        {
+            "code": "S0034-89102009000400003",
+            "journal": "0034-8910",
+            "issue": "0034-891020090004",
+            "download.y2011.m10.d01": 100,
+            "download.y2011.m10.d02": 100,
+            "download.y2011.m10.d03": 100,
+            "download.y2012.m11.d01": 10,
+            "download.y2012.m11.a02": 10,
+            "download.y2012.m11.a03": 10,
+            "download.y2012.m10.total": 300,
+            "download.y2012.m11.total": 30,
+            "download.y2012.total": 330,
+            "total": 330,
+            "bra": 200,
+            "mex": 100,
+            "arg": 10,
+            "col": 20
+        }
+
+Query Sample
+------------
+
+    /api/v1/article/bulk?data=<JSON DATA>
+
 -------------------
 Bulk Issue Accesses 
 -------------------

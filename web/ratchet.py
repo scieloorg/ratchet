@@ -128,13 +128,9 @@ class BulkPdfHandler(tornado.web.RequestHandler):
         del data['journal']
         del data['issue']
 
-        pdf_data = {}
-        for key, value in data.items():
-            pdf_data['pdf_' + key] = value
-
         self.db.accesses.update(
             {'code': code},
-            {'$set': {'type': 'article', 'journal': journal, 'issue': issue}, '$inc': pdf_data},
+            {'$set': {'type': 'article', 'journal': journal, 'issue': issue}, '$inc': data},
             safe=False,
             upsert=True
         )
@@ -152,8 +148,13 @@ class PdfHandler(tornado.web.RequestHandler):
         journal = self.get_argument('journal')
         issue = self.get_argument('issue')
         access_date = self.get_argument('access_date')
-        iso_date = 'pdf_' + access_date
-        month_date = 'pdf_' + iso_date[:7]
+
+        day = access_date[8:10]
+        month = access_date[5:7]
+        year = access_date[0:4]
+        lday = 'download.y{0}.m{1}.d{2}'.format(year, month, day)
+        lmonth = 'download.y{0}.m{1}.total'.format(year, month)
+        lyear = 'download.y{0}.total'.format(year)
 
         self.db.accesses.update(
             {'code': code},
@@ -164,7 +165,14 @@ class PdfHandler(tornado.web.RequestHandler):
                     'issue': issue
                 },
                 '$inc':
-                    {region: 1, iso_date: 1, month_date: 1, 'pdf_total': 1}},
+                    {
+                        region: 1,
+                        lmonth: 1,
+                        lday: 1,
+                        lyear: 1,
+                        'total': 1
+                    }
+                },
             safe=False,
             upsert=True
         )
@@ -190,8 +198,6 @@ class BulkArticleHandler(tornado.web.RequestHandler):
         del data['code']
         del data['journal']
         del data['issue']
-
-        print data
 
         self.db.accesses.update(
             {'code': code},
@@ -305,8 +311,6 @@ class BulkIssueHandler(tornado.web.RequestHandler):
         del data['code']
         del data['journal']
 
-        print data
-
         self.db.accesses.update(
             {'code': code},
             {'$set':
@@ -347,9 +351,9 @@ class IssueHandler(tornado.web.RequestHandler):
         day = '%02d' % date.today().day
         month = '%02d' % date.today().month
         year = '%02d' % date.today().year
-        lday = 'article.y{0}.m{1}.d{2}'.format(year, month, day)
-        lmonth = 'article.y{0}.m{1}.total'.format(year, month)
-        lyear = 'article.y{0}.total'.format(year)
+        lday = 'issue.y{0}.m{1}.d{2}'.format(year, month, day)
+        lmonth = 'issue.y{0}.m{1}.total'.format(year, month)
+        lyear = 'issue.y{0}.total'.format(year)
 
         self.db.accesses.update(
             {'code': code},
@@ -417,8 +421,6 @@ class BulkJournalHandler(tornado.web.RequestHandler):
 
         del data['code']
 
-        print data
-
         self.db.accesses.update(
             {'code': code},
             {'$set': {'type': 'journal'}, '$inc': data},
@@ -452,9 +454,9 @@ class JournalHandler(tornado.web.RequestHandler):
         day = '%02d' % date.today().day
         month = '%02d' % date.today().month
         year = '%02d' % date.today().year
-        lday = 'article.y{0}.m{1}.d{2}'.format(year, month, day)
-        lmonth = 'article.y{0}.m{1}.total'.format(year, month)
-        lyear = 'article.y{0}.total'.format(year)
+        lday = 'journal.y{0}.m{1}.d{2}'.format(year, month, day)
+        lmonth = 'journal.y{0}.m{1}.total'.format(year, month)
+        lyear = 'journal.y{0}.total'.format(year)
 
         self.db.accesses.update(
             {'code': code},
