@@ -71,6 +71,12 @@ class Application(tornado.web.Application):
         tornado.web.Application.__init__(self, handlers)
 
 
+class BaseHandler(tornado.web.RequestHandler):
+    def set_default_headers(self):
+        self.set_header("Access-Control-Allow-Methods", "GET, POST")
+        self.set_header("Access-Control-Allow-Origin", "*")
+
+
 class RootHandler(tornado.web.RequestHandler):
     def get(self):
         if self.application.api_style == 'global':
