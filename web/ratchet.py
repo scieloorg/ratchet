@@ -152,7 +152,7 @@ class PdfHandler(tornado.web.RequestHandler):
 
     def post(self):
         code = self.get_argument('code')
-        region = self.get_argument('region', 'undefined')
+        region = self.get_argument('region', None)
         journal = self.get_argument('journal')
         issue = self.get_argument('issue')
         access_date = self.get_argument('access_date', None)
@@ -166,9 +166,9 @@ class PdfHandler(tornado.web.RequestHandler):
             month = '%02d' % date.today().month
             year = '%02d' % date.today().year
 
-        lday = 'download.y{0}.m{1}.d{2}'.format(year, month, day)
-        lmonth = 'download.y{0}.m{1}.total'.format(year, month)
-        lyear = 'download.y{0}.total'.format(year)
+        lday = 'pdf.y{0}.m{1}.d{2}'.format(year, month, day)
+        lmonth = 'pdf.y{0}.m{1}.total'.format(year, month)
+        lyear = 'pdf.y{0}.total'.format(year)
 
         inc = {
             lmonth: 1,
@@ -177,7 +177,7 @@ class PdfHandler(tornado.web.RequestHandler):
             'total': 1
             }
 
-        if region != 'undefined':
+        if region:
             if region in self.application.alpha3:
                 inc['region.' + region] = 1
 
