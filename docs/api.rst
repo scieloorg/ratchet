@@ -15,8 +15,8 @@ Register an article access
 
     **resource:** /api/v1/article
 
-Parameters
-----------
+Mandatory Parameters
+--------------------
 
     **code:** any code that uniquely represents an article
 
@@ -24,6 +24,11 @@ Parameters
 
     **issue:**  any code that uniquely represents an issue
 
+Optional Parameters
+-------------------
+
+    **access_date** access date iso format (YYYY-MM-DD)
+    
     **region:** 3 letters iso country code
 
 Query Sample
@@ -37,8 +42,8 @@ Register a PDF access
 
     **resource:** /api/v1/pdf
 
-Parameters
-----------
+Mandatory Parameters
+--------------------
 
     **code:** any code that uniquely represents an article
 
@@ -46,9 +51,14 @@ Parameters
 
     **issue:**  any code that uniquely represents an issue
 
+
+Optional Parameters
+-------------------
+
+    **access_date** access date iso format (YYYY-MM-DD)
+    
     **region:** 3 letters iso country code
 
-    **access_date:** access date iso format (YYYY-MM-DD)
 
 Query Sample
 ------------
@@ -68,6 +78,11 @@ Parameters
 
     **journal:** any code that uniquely represents a journal
 
+Optional Parameters
+-------------------
+
+    **access_date** access date iso format (YYYY-MM-DD)
+    
     **region:** 3 letters iso country code
 
 
@@ -87,7 +102,12 @@ Parameters
 
     **code:** latindex Journal ID
 
-    **region:** 3 letters iso country code (http://en.wikipedia.org/wiki/ISO_3166-1)
+Optional Parameters
+-------------------
+
+    **access_date** access date iso format (YYYY-MM-DD)
+    
+    **region:** 3 letters iso country code
 
 Query Sample
 ------------

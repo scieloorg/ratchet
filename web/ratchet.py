@@ -155,11 +155,17 @@ class PdfHandler(tornado.web.RequestHandler):
         region = self.get_argument('region', 'undefined')
         journal = self.get_argument('journal')
         issue = self.get_argument('issue')
-        access_date = self.get_argument('access_date')
+        access_date = self.get_argument('access_date', None)
 
-        day = access_date[8:10]
-        month = access_date[5:7]
-        year = access_date[0:4]
+        if access_date:
+            day = access_date[8:10]
+            month = access_date[5:7]
+            year = access_date[0:4]
+        else:
+            day = '%02d' % date.today().day
+            month = '%02d' % date.today().month
+            year = '%02d' % date.today().year
+
         lday = 'download.y{0}.m{1}.d{2}'.format(year, month, day)
         lmonth = 'download.y{0}.m{1}.total'.format(year, month)
         lyear = 'download.y{0}.total'.format(year)
@@ -197,25 +203,35 @@ class GeneralHandler(tornado.web.RequestHandler):
 
     def post(self):
         code = self.get_argument('code')
-        data = self.get_argument('data')
+        page = self.get_argument('page', None)
+        access_date = self.get_argument('access_date', None)
 
-        day = '%02d' % date.today().day
-        month = '%02d' % date.today().month
-        year = '%02d' % date.today().year
-        lday = 'y{0}.m{1}.d{2}'.format(year, month, day)
-        lmonth = 'y{0}.m{1}.total'.format(year, month)
-        lyear = 'y{0}.total'.format(year)
+        if access_date:
+            day = access_date[8:10]
+            month = access_date[5:7]
+            year = access_date[0:4]
+        else:
+            day = '%02d' % date.today().day
+            month = '%02d' % date.today().month
+            year = '%02d' % date.today().year
+
+        lday = '{0}.y{1}.m{2}.d{3}'.format(page, year, month, day)
+        lmonth = '{0}.y{1}.m{2}.total'.format(page, year, month)
+        lyear = '{0}.y{1}.total'.format(page, year)
 
         inc = {
-            lmonth: 1,
             lday: 1,
-            lyear: 1,
-            'total': 1
-            }
+            lmonth: 1,
+            lyear: 1
+        }
+
+        if page:
+            inc[page + '.' + lday] = 1
+            inc[page + '.' + lmonth] = 1
+            inc[page + '.' + lyear] = 1
 
         self.db.accesses.update(
             {'code': code}, {
-                '$set': data,
                 '$inc': inc
             },
             safe=False,
@@ -277,12 +293,20 @@ class ArticleHandler(tornado.web.RequestHandler):
 
     def post(self):
         code = self.get_argument('code')
-        region = self.get_argument('region', 'undefined')
+        region = self.get_argument('region', None)
         journal = self.get_argument('journal')
         issue = self.get_argument('issue')
-        day = '%02d' % date.today().day
-        month = '%02d' % date.today().month
-        year = '%02d' % date.today().year
+        access_date = self.get_argument('access_date', None)
+
+        if access_date:
+            day = access_date[8:10]
+            month = access_date[5:7]
+            year = access_date[0:4]
+        else:
+            day = '%02d' % date.today().day
+            month = '%02d' % date.today().month
+            year = '%02d' % date.today().year
+
         lday = 'article.y{0}.m{1}.d{2}'.format(year, month, day)
         lmonth = 'article.y{0}.m{1}.total'.format(year, month)
         lyear = 'article.y{0}.total'.format(year)
@@ -294,7 +318,7 @@ class ArticleHandler(tornado.web.RequestHandler):
             'total': 1
             }
 
-        if region != 'undefined':
+        if region:
             if region in self.application.alpha3:
                 inc['region.' + region] = 1
 
@@ -392,11 +416,19 @@ class IssueHandler(tornado.web.RequestHandler):
 
     def post(self):
         code = self.get_argument('code')
-        region = self.get_argument('region', 'undefined')
+        region = self.get_argument('region', None)
         journal = self.get_argument('journal')
-        day = '%02d' % date.today().day
-        month = '%02d' % date.today().month
-        year = '%02d' % date.today().year
+        access_date = self.get_argument('access_date', None)
+
+        if access_date:
+            day = access_date[8:10]
+            month = access_date[5:7]
+            year = access_date[0:4]
+        else:
+            day = '%02d' % date.today().day
+            month = '%02d' % date.today().month
+            year = '%02d' % date.today().year
+
         lday = 'issue.y{0}.m{1}.d{2}'.format(year, month, day)
         lmonth = 'issue.y{0}.m{1}.total'.format(year, month)
         lyear = 'issue.y{0}.total'.format(year)
@@ -408,7 +440,7 @@ class IssueHandler(tornado.web.RequestHandler):
             'total': 1
             }
 
-        if region != 'undefined':
+        if region:
             if region in self.application.alpha3:
                 inc['region.' + region] = 1
 
@@ -499,10 +531,18 @@ class JournalHandler(tornado.web.RequestHandler):
 
     def post(self):
         code = self.get_argument('code')
-        region = self.get_argument('region', 'undefined')
-        day = '%02d' % date.today().day
-        month = '%02d' % date.today().month
-        year = '%02d' % date.today().year
+        region = self.get_argument('region', None)
+        access_date = self.get_argument('access_date', None)
+
+        if access_date:
+            day = access_date[8:10]
+            month = access_date[5:7]
+            year = access_date[0:4]
+        else:
+            day = '%02d' % date.today().day
+            month = '%02d' % date.today().month
+            year = '%02d' % date.today().year
+
         lday = 'journal.y{0}.m{1}.d{2}'.format(year, month, day)
         lmonth = 'journal.y{0}.m{1}.total'.format(year, month)
         lyear = 'journal.y{0}.total'.format(year)
@@ -514,7 +554,7 @@ class JournalHandler(tornado.web.RequestHandler):
             'total': 1
             }
 
-        if region != 'undefined':
+        if region:
             if region in self.application.alpha3:
                 inc['region.' + region] = 1
 
