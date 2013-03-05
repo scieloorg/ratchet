@@ -215,9 +215,9 @@ class GeneralHandler(tornado.web.RequestHandler):
             month = '%02d' % date.today().month
             year = '%02d' % date.today().year
 
-        lday = '{0}.y{1}.m{2}.d{3}'.format(page, year, month, day)
-        lmonth = '{0}.y{1}.m{2}.total'.format(page, year, month)
-        lyear = '{0}.y{1}.total'.format(page, year)
+        lday = 'y{0}.m{1}.d{2}'.format(year, month, day)
+        lmonth = 'y{0}.m{1}.total'.format(year, month)
+        lyear = 'y{0}.total'.format(year)
 
         inc = {
             lday: 1,
