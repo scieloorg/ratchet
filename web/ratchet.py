@@ -196,6 +196,16 @@ class PdfHandler(tornado.web.RequestHandler):
 
 
 class GeneralHandler(tornado.web.RequestHandler):
+
+    def _on_get_response(self, response, error):
+        if error:
+            raise tornado.web.HTTPError(500)
+
+        if len(response) > 0:
+            self.write(json.dumps(response[0]))
+
+        self.finish()
+
     @property
     def db(self):
         self._db = self.application.db
@@ -236,6 +246,13 @@ class GeneralHandler(tornado.web.RequestHandler):
             },
             safe=False,
             upsert=True)
+
+    @tornado.web.asynchronous
+    @tornado.gen.engine
+    def get(self):
+        code = self.get_argument('code')
+
+        self.db.accesses.find({"code": code}, {"_id": 0}, limit=1, callback=self._on_get_response)
 
 
 class BulkArticleHandler(tornado.web.RequestHandler):
@@ -282,7 +299,7 @@ class ArticleHandler(tornado.web.RequestHandler):
             raise tornado.web.HTTPError(500)
 
         if len(response) > 0:
-            self.write(str(response[0]))
+            self.write(json.dumps(response[0]))
 
         self.finish()
 
@@ -405,7 +422,7 @@ class IssueHandler(tornado.web.RequestHandler):
             raise tornado.web.HTTPError(500)
 
         if len(response) > 0:
-            self.write(str(response[0]))
+            self.write(json.dumps(response[0]))
 
         self.finish()
 
@@ -520,7 +537,7 @@ class JournalHandler(tornado.web.RequestHandler):
             raise tornado.web.HTTPError(500)
 
         if len(response) > 0:
-            self.write(str(response[0]))
+            self.write(json.dumps(response[0]))
 
         self.finish()
 
