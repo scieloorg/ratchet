@@ -242,7 +242,6 @@ class GeneralHandler(tornado.web.RequestHandler):
             inc[page + '.' + lday] = 1
             inc[page + '.' + lmonth] = 1
             inc[page + '.' + lyear] = 1
-            inc[page + '.total.' + lyear] = 1
 
         self.db.accesses.update(
             {'code': code}, {
