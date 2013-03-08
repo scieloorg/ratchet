@@ -57,10 +57,6 @@ class Application(tornado.web.Application):
             dbname=options.mongodb_database
         )
 
-        self.db.accesses.ensure_index('code')
-        self.db.accesses.ensure_index('type')
-        self.db.accesses.ensure_index('page')
-
         # Loading Alpha-3 Country codes for regions definition
         self.alpha3 = {}
         with open('iso_alpha3.txt') as f:
