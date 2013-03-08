@@ -326,6 +326,25 @@ Query Sample
 
     /api/v1/article?code=41469714ad84732ad79ffb7ccae00fc5
 
+    Response sample::
+
+    {
+        "code": "1575-18132006000600004", 
+        "type": "article", 
+        "pdf": {
+            "y2011": {
+                "total": 2, 
+                "m01": {
+                    "d15": 2, 
+                    "total": 2
+                }
+            }
+        }, 
+        "journal": "1575-1813",
+        "total": 2,
+        "issue": "1575-181320060006"
+    }
+
 -------------------------------
 Retrieve accesses from an issue
 -------------------------------
@@ -342,6 +361,46 @@ Query Sample
 
     /api/v1/issue?code=a891dc829a40e104c112fd3b0f100e25
 
+    Response sample::
+
+    {
+        "total": 17,
+        "type": "issue",
+        "journal": "0102-311X",
+        "code": "0102-311X19870004",
+        "issue": {
+            "y2011": {
+                "m04": {
+                    "d07": 1, 
+                    "total": 1
+                }, 
+                "total": 17,
+                "m02": {
+                    "total": 3,
+                    "d23": 1, 
+                    "d17": 1, 
+                    "d13": 1
+                },
+                "m03": {
+                    "d14": 1,
+                    "d11": 1,
+                    "d12": 1,
+                    "d13": 1,
+                    "d21": 1,
+                    "total": 9,
+                    "d26": 4
+                }, 
+                "m01": {
+                    "d14": 1,
+                    "d15": 1,
+                    "total": 4,
+                    "d25": 1,
+                    "d31": 1
+                }
+            }
+        }
+    }
+
 --------------------------------
 Retrieve accesses from a journal
 --------------------------------
@@ -357,3 +416,25 @@ Query Sample
 ------------
 
     /api/v1/journal?code=1981-6723
+
+    Response sample::
+
+    {
+        "code": "1575-1813", 
+        "y2011": {
+            "total": 78, 
+            "m01": {
+                "d15": 78, 
+                "total": 78
+            }
+        }, 
+        "sci_pdf": {
+            "y2011": {
+                "total": 78, 
+                "m01": {
+                    "d15": 78, 
+                    "total": 78
+                }
+            }
+        }
+    }

@@ -57,6 +57,10 @@ class Application(tornado.web.Application):
             dbname=options.mongodb_database
         )
 
+        self.db.accesses.ensure_index('code')
+        self.db.accesses.ensure_index('type')
+        self.db.accesses.ensure_index('page')
+
         # Loading Alpha-3 Country codes for regions definition
         self.alpha3 = {}
         with open('iso_alpha3.txt') as f:
@@ -234,13 +238,15 @@ class GeneralHandler(tornado.web.RequestHandler):
         inc = {
             lday: 1,
             lmonth: 1,
-            lyear: 1
+            lyear: 1,
+            'total': 1
         }
 
         if page:
             inc[page + '.' + lday] = 1
             inc[page + '.' + lmonth] = 1
             inc[page + '.' + lyear] = 1
+            inc[page + '.total.' + lyear] = 1
 
         self.db.accesses.update(
             {'code': code}, {
