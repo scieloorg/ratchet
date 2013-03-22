@@ -204,7 +204,7 @@ class GeneralHandler(tornado.web.RequestHandler):
             raise tornado.web.HTTPError(500)
 
         if len(response) > 0:
-            self.write(json.dumps(response[0]))
+            self.write(json.dumps(response))
 
         self.finish()
 
@@ -242,6 +242,7 @@ class GeneralHandler(tornado.web.RequestHandler):
             inc[page + '.' + lday] = 1
             inc[page + '.' + lmonth] = 1
             inc[page + '.' + lyear] = 1
+            inc[page + '.total'] = 1
 
         self.db.accesses.update(
             {'code': code}, {
@@ -253,9 +254,15 @@ class GeneralHandler(tornado.web.RequestHandler):
     @tornado.web.asynchronous
     @tornado.gen.engine
     def get(self):
-        code = self.get_argument('code')
+        code = self.get_argument('code', None)
+        type_doc = self.get_argument('type', None)
+        limit = int(self.get_argument('limit', 10))
 
-        self.db.accesses.find({"code": code}, {"_id": 0}, limit=1, callback=self._on_get_response)
+        query = {"code": code}
+        if type_doc:
+            query = {"type": type_doc}
+
+        self.db.accesses.find(query, {"_id": 0}, limit=limit, callback=self._on_get_response)
 
 
 class BulkArticleHandler(tornado.web.RequestHandler):
