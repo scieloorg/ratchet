@@ -438,3 +438,45 @@ Query Sample
             }
         }
     }
+
+---------------------------------------------------------
+Retrieve accesses from any document using general request
+---------------------------------------------------------
+
+    **resource:** /api/v1/general
+
+Parameters
+----------
+
+    **code:** any document code
+
+    or
+    
+    **type:** any document type [journal, issue, article]
+
+Query Sample
+------------
+
+    /api/v1/journal?code=1981-6723
+
+    Response sample::
+
+    {
+        "code": "1575-1813", 
+        "y2011": {
+            "total": 78, 
+            "m01": {
+                "d15": 78, 
+                "total": 78
+            }
+        }, 
+        "sci_pdf": {
+            "y2011": {
+                "total": 78, 
+                "m01": {
+                    "d15": 78, 
+                    "total": 78
+                }
+            }
+        }
+    }
