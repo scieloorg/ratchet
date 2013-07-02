@@ -2,6 +2,7 @@ import urllib
 import urllib2
 import json
 from datetime import date
+from pymongo import Connection
 
 from tornado import (
     httpserver,
@@ -47,6 +48,12 @@ class Application(tornado.web.Application):
             (r"/api/v1/pdf", PdfHandler),
             (r"/api/v1/pdf/bulk", BulkPdfHandler),
         ]
+
+        # Creating Indexes without asyncmongo.
+        coll = Connection(options.mongodb_host, options.mongodb_port)[options.mongodb_database]['accesses']
+        coll.ensure_index('code')
+        coll.ensure_index('page')
+        coll.ensure_index('type')
 
         self.db = asyncmongo.Client(
             pool_id='accesses',
