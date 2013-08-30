@@ -1,6 +1,8 @@
 import urllib
 import urllib2
 import json
+import uuid
+
 from datetime import date
 from pymongo import Connection
 
@@ -30,7 +32,7 @@ define("mongodb_max_cached", default=0, help="run MongoDB with the given max cac
 define("mongodb_max_usage", default=0, help="run MongoDB with the given max cached", type=int)
 define("mongodb_min_cached", default=1000, help="run MongoDB with the given min cached", type=int)
 define("resources", default=None, help="indicates a txt file with api resources. Once this parameter is defined, the API will just work as accesses delivery.", type=str)
-define("allowed_hosts", default=None, help="indicates a txt file with hostnames allowed to post data.", type=str)
+define("manager_token", default=None, help="indicates a token that must be used to manage allowed_tokens.", type=str)
 define("broadcast_timeout", default=1, help="indicates the max timeout in seconds that the broadcast must finish.", type=str)
 
 
@@ -47,7 +49,10 @@ class Application(tornado.web.Application):
             (r"/api/v1/article/bulk", BulkArticleHandler),
             (r"/api/v1/pdf", PdfHandler),
             (r"/api/v1/pdf/bulk", BulkPdfHandler),
+            (r"/api/v1/token", TokenHandler),
         ]
+
+        self.manager_token = options.manager_token
 
         # Creating Indexes without asyncmongo.
         coll = Connection(options.mongodb_host, options.mongodb_port)[options.mongodb_database]['accesses']
@@ -57,6 +62,15 @@ class Application(tornado.web.Application):
 
         self.db = asyncmongo.Client(
             pool_id='accesses',
+            host=options.mongodb_host,
+            port=options.mongodb_port,
+            maxcached=options.mongodb_max_cached,
+            maxconnections=options.mongodb_max_connections,
+            dbname=options.mongodb_database
+        )
+
+        self.tkdb = asyncmongo.Client(
+            pool_id='tokens',
             host=options.mongodb_host,
             port=options.mongodb_port,
             maxcached=options.mongodb_max_cached,
@@ -101,6 +115,53 @@ class RootHandler(tornado.web.RequestHandler):
         else:
             self.write("Another Ratchet Local Resource")
         self.finish()
+
+
+class TokenHandler(tornado.web.RequestHandler):
+
+    def _on_get_response(self, response, error):
+        if error:
+            raise tornado.web.HTTPError(500)
+
+        if len(response) > 0:
+            self.write(json.dumps(response))
+
+        self.finish()
+
+    @property
+    def tkdb(self):
+        self._tkdb = self.application.tkdb
+        return self._tkdb
+
+    @property
+    def manager_token(self):
+        self._manager_token = self.application.manager_token
+        return self._manager_token
+
+    def post(self):
+        data = self.get_argument('api_token', None)
+        domain = self.get_argument('domain')
+        token = self.get_argument('token', str(uuid.uuid4()))
+
+        if not data == self.manager_token:
+            raise tornado.web.HTTPError(401)
+
+        self.tkdb.token.update({'domain': domain}, 
+                               {'$set': {'token': token}},
+                               safe=False,
+                               upsert=True)
+
+    @tornado.web.asynchronous
+    @tornado.gen.engine
+    def get(self):
+        data = self.get_argument('api_token', None)
+        limit = self.get_argument('limit', 1000)
+
+        if not data == self.manager_token:
+            raise tornado.web.HTTPError(401)
+
+        self.tkdb.token.find({}, {"_id": 0}, limit=limit, callback=self._on_get_response)
+
 
 
 class ResourcesHandler(tornado.web.RequestHandler):
