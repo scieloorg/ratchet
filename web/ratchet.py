@@ -308,9 +308,6 @@ class BulkArticleHandler(tornado.web.RequestHandler):
 
 class ArticleHandler(tornado.web.RequestHandler):
 
-    def _remove_callback(self, response, error):
-        pass
-
     def _on_get_response(self, response, error):
         if error:
             raise tornado.web.HTTPError(500)
@@ -373,28 +370,6 @@ class ArticleHandler(tornado.web.RequestHandler):
     def get(self):
         code = self.get_argument('code')
 
-        if self.application.api_style == 'global':
-            self.db.accesses.remove({'code': code}, callback=self._remove_callback)
-            http_client = httpclient.AsyncHTTPClient()
-            for resource in self.application.resources.itervalues():
-                resource = resource.strip()
-                url = "http://%s/api/v1/article?%s" % (resource, urllib.urlencode({'code': code}))
-                response = yield tornado.gen.Task(http_client.fetch, url)
-                if not response.error:
-                    data = response.body.replace("'", '"').replace('u"', '"')
-                    data = json.loads(data)
-                    str_data = {'journal': data['journal'], 'issue': data['issue'], 'type': 'article'}
-                    del(data['code'])
-                    del(data['type'])
-                    del(data['journal'])
-                    del(data['issue'])
-                    self.db.accesses.update(
-                        {'code': code},
-                        {'$inc': data, '$set': str_data},
-                        safe=False,
-                        upsert=True
-                    )
-
         self.db.accesses.find({"code": code, "type": "article"}, {"_id": 0}, limit=1, callback=self._on_get_response)
 
 
@@ -430,9 +405,6 @@ class BulkIssueHandler(tornado.web.RequestHandler):
 
 
 class IssueHandler(tornado.web.RequestHandler):
-
-    def _remove_callback(self, response, error):
-        pass
 
     def _on_get_response(self, response, error):
         if error:
@@ -494,27 +466,6 @@ class IssueHandler(tornado.web.RequestHandler):
     def get(self):
         code = self.get_argument('code')
 
-        if self.application.api_style == 'global':
-            self.db.accesses.remove({'code': code}, callback=self._remove_callback)
-            http_client = httpclient.AsyncHTTPClient()
-            for resource in self.application.resources.itervalues():
-                resource = resource.strip()
-                url = "http://%s/api/v1/issue?%s" % (resource, urllib.urlencode({'code': code}))
-                response = yield tornado.gen.Task(http_client.fetch, url)
-                if not response.error:
-                    data = response.body.replace("'", '"').replace('u"', '"')
-                    data = json.loads(data)
-                    str_data = {'journal': data['journal'], 'type': 'issue'}
-                    del(data['code'])
-                    del(data['type'])
-                    del(data['journal'])
-                    self.db.accesses.update(
-                        {'code': code},
-                        {'$inc': data, '$set': str_data},
-                        safe=False,
-                        upsert=True
-                    )
-
         self.db.accesses.find({"code": code, "type": "issue"}, {"_id": 0}, limit=1, callback=self._on_get_response)
 
 
@@ -545,9 +496,6 @@ class BulkJournalHandler(tornado.web.RequestHandler):
 
 
 class JournalHandler(tornado.web.RequestHandler):
-
-    def _remove_callback(self, response, error):
-        pass
 
     def _on_get_response(self, response, error):
         if error:
@@ -606,25 +554,6 @@ class JournalHandler(tornado.web.RequestHandler):
     @tornado.gen.engine
     def get(self):
         code = self.get_argument('code')
-
-        if self.application.api_style == 'global':
-            self.db.accesses.remove({'code': code}, callback=self._remove_callback)
-            http_client = httpclient.AsyncHTTPClient()
-            for resource in self.application.resources.itervalues():
-                resource = resource.strip()
-                url = "http://%s/api/v1/journal?%s" % (resource, urllib.urlencode({'code': code}))
-                response = yield tornado.gen.Task(http_client.fetch, url)
-                if not response.error:
-                    data = response.body.replace("'", '"').replace('u"', '"')
-                    data = json.loads(data)
-                    del(data['code'])
-                    del(data['type'])
-                    self.db.accesses.update(
-                        {'code': code},
-                        {'$set': {'type': 'journal'}, '$inc': data},
-                        safe=False,
-                        upsert=True
-                    )
 
         self.db.accesses.find({"code": code, "type": "journal"}, {"_id": 0}, limit=1, callback=self._on_get_response)
 
