@@ -90,6 +90,10 @@ class Application(tornado.web.Application):
             dbname=options.mongodb_database
         )
 
+        coll = Connection(options.mongodb_host, options.mongodb_port)[options.mongodb_database]['token']
+        coll.ensure_index('domain')
+        coll.ensure_index('token')
+
         self.tkdb = asyncmongo.Client(
             pool_id='tokens',
             host=options.mongodb_host,
