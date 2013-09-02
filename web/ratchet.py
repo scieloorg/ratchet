@@ -2,6 +2,7 @@ import urllib
 import urllib2
 import json
 import uuid
+from functools import wraps
 
 from datetime import date
 from pymongo import Connection
@@ -32,9 +33,29 @@ define("mongodb_max_cached", default=0, help="run MongoDB with the given max cac
 define("mongodb_max_usage", default=0, help="run MongoDB with the given max cached", type=int)
 define("mongodb_min_cached", default=1000, help="run MongoDB with the given min cached", type=int)
 define("resources", default=None, help="indicates a txt file with api resources. Once this parameter is defined, the API will just work as accesses delivery.", type=str)
-define("manager_token", default=None, help="indicates a token that must be used to manage allowed_tokens.", type=str)
+define("manager_token", default=str(uuid.uuid4()), help="indicates a token that must be used to manage allowed_tokens.", type=str)
 define("broadcast_timeout", default=1, help="indicates the max timeout in seconds that the broadcast must finish.", type=str)
 
+def authenticated(func):
+    @wraps(func)
+    def wrapper(self, *args, **kwargs):
+        
+        def _call_back_auth(response, error):
+            if error:
+                raise tornado.web.HTTPError(500)
+
+            if len(response) != 1:
+                raise tornado.web.HTTPError(401)
+
+        api_token = self.get_argument('api_token', None)
+
+        if not api_token:
+            raise tornado.web.HTTPError(401)
+
+        self.tkdb.token.find({'token': api_token}, {'_id': 0}, callback=_call_back_auth)
+        r = func(self, *args, **kwargs)
+        return r 
+    return wrapper
 
 class Application(tornado.web.Application):
     def __init__(self):
@@ -103,12 +124,14 @@ class Application(tornado.web.Application):
 
 
 class BaseHandler(tornado.web.RequestHandler):
+
     def set_default_headers(self):
         self.set_header("Access-Control-Allow-Methods", "GET, POST")
         self.set_header("Access-Control-Allow-Origin", "*")
 
 
 class RootHandler(tornado.web.RequestHandler):
+
     def get(self):
         if self.application.api_style == 'global':
             self.write("Another Ratchet Global Resource")
@@ -192,6 +215,12 @@ class BulkPdfHandler(tornado.web.RequestHandler):
         self._db = self.application.db
         return self._db
 
+    @property
+    def tkdb(self):
+        self._tkdb = self.application.tkdb
+        return self._tkdb
+
+    @authenticated
     def post(self):
 
         data = self.get_argument('data', 'No data received')
@@ -220,6 +249,12 @@ class PdfHandler(tornado.web.RequestHandler):
         self._db = self.application.db
         return self._db
 
+    @property
+    def tkdb(self):
+        self._tkdb = self.application.tkdb
+        return self._tkdb
+
+    @authenticated
     def post(self):
         code = self.get_argument('code')
         region = self.get_argument('region', None)
@@ -264,7 +299,6 @@ class PdfHandler(tornado.web.RequestHandler):
             upsert=True
         )
 
-
 class GeneralHandler(tornado.web.RequestHandler):
 
     def _on_get_response(self, response, error):
@@ -281,6 +315,12 @@ class GeneralHandler(tornado.web.RequestHandler):
         self._db = self.application.db
         return self._db
 
+    @property
+    def tkdb(self):
+        self._tkdb = self.application.tkdb
+        return self._tkdb
+
+    @authenticated
     def post(self):
         code = self.get_argument('code')
         page = self.get_argument('page', None)
@@ -340,6 +380,12 @@ class BulkArticleHandler(tornado.web.RequestHandler):
         self._db = self.application.db
         return self._db
 
+    @property
+    def tkdb(self):
+        self._tkdb = self.application.tkdb
+        return self._tkdb
+
+    @authenticated
     def post(self):
 
         data = self.get_argument('data', 'No data received')
@@ -386,6 +432,12 @@ class ArticleHandler(tornado.web.RequestHandler):
         self._db = self.application.db
         return self._db
 
+    @property
+    def tkdb(self):
+        self._tkdb = self.application.tkdb
+        return self._tkdb
+
+    @authenticated
     def post(self):
         code = self.get_argument('code')
         region = self.get_argument('region', None)
@@ -433,29 +485,6 @@ class ArticleHandler(tornado.web.RequestHandler):
     @tornado.gen.engine
     def get(self):
         code = self.get_argument('code')
-
-        if self.application.api_style == 'global':
-            self.db.accesses.remove({'code': code}, callback=self._remove_callback)
-            http_client = httpclient.AsyncHTTPClient()
-            for resource in self.application.resources.itervalues():
-                resource = resource.strip()
-                url = "http://%s/api/v1/article?%s" % (resource, urllib.urlencode({'code': code}))
-                response = yield tornado.gen.Task(http_client.fetch, url)
-                if not response.error:
-                    data = response.body.replace("'", '"').replace('u"', '"')
-                    data = json.loads(data)
-                    str_data = {'journal': data['journal'], 'issue': data['issue'], 'type': 'article'}
-                    del(data['code'])
-                    del(data['type'])
-                    del(data['journal'])
-                    del(data['issue'])
-                    self.db.accesses.update(
-                        {'code': code},
-                        {'$inc': data, '$set': str_data},
-                        safe=False,
-                        upsert=True
-                    )
-
         self.db.accesses.find({"code": code, "type": "article"}, {"_id": 0}, limit=1, callback=self._on_get_response)
 
 
@@ -466,6 +495,12 @@ class BulkIssueHandler(tornado.web.RequestHandler):
         self._db = self.application.db
         return self._db
 
+    @property
+    def tkdb(self):
+        self._tkdb = self.application.tkdb
+        return self._tkdb
+
+    @authenticated
     def post(self):
 
         data = self.get_argument('data', 'No data received')
@@ -509,6 +544,12 @@ class IssueHandler(tornado.web.RequestHandler):
         self._db = self.application.db
         return self._db
 
+    @property
+    def tkdb(self):
+        self._tkdb = self.application.tkdb
+        return self._tkdb
+
+    @authenticated
     def post(self):
         code = self.get_argument('code')
         region = self.get_argument('region', None)
@@ -554,28 +595,6 @@ class IssueHandler(tornado.web.RequestHandler):
     @tornado.gen.engine
     def get(self):
         code = self.get_argument('code')
-
-        if self.application.api_style == 'global':
-            self.db.accesses.remove({'code': code}, callback=self._remove_callback)
-            http_client = httpclient.AsyncHTTPClient()
-            for resource in self.application.resources.itervalues():
-                resource = resource.strip()
-                url = "http://%s/api/v1/issue?%s" % (resource, urllib.urlencode({'code': code}))
-                response = yield tornado.gen.Task(http_client.fetch, url)
-                if not response.error:
-                    data = response.body.replace("'", '"').replace('u"', '"')
-                    data = json.loads(data)
-                    str_data = {'journal': data['journal'], 'type': 'issue'}
-                    del(data['code'])
-                    del(data['type'])
-                    del(data['journal'])
-                    self.db.accesses.update(
-                        {'code': code},
-                        {'$inc': data, '$set': str_data},
-                        safe=False,
-                        upsert=True
-                    )
-
         self.db.accesses.find({"code": code, "type": "issue"}, {"_id": 0}, limit=1, callback=self._on_get_response)
 
 
@@ -586,6 +605,12 @@ class BulkJournalHandler(tornado.web.RequestHandler):
         self._db = self.application.db
         return self._db
 
+    @property
+    def tkdb(self):
+        self._tkdb = self.application.tkdb
+        return self._tkdb
+
+    @authenticated
     def post(self):
 
         data = self.get_argument('data', 'No data received')
@@ -620,10 +645,16 @@ class JournalHandler(tornado.web.RequestHandler):
         self.finish()
 
     @property
+    def tkdb(self):
+        self._tkdb = self.application.tkdb
+        return self._tkdb
+
+    @property
     def db(self):
         self._db = self.application.db
         return self._db
 
+    @authenticated
     def post(self):
         code = self.get_argument('code')
         region = self.get_argument('region', None)
@@ -667,26 +698,6 @@ class JournalHandler(tornado.web.RequestHandler):
     @tornado.gen.engine
     def get(self):
         code = self.get_argument('code')
-
-        if self.application.api_style == 'global':
-            self.db.accesses.remove({'code': code}, callback=self._remove_callback)
-            http_client = httpclient.AsyncHTTPClient()
-            for resource in self.application.resources.itervalues():
-                resource = resource.strip()
-                url = "http://%s/api/v1/journal?%s" % (resource, urllib.urlencode({'code': code}))
-                response = yield tornado.gen.Task(http_client.fetch, url)
-                if not response.error:
-                    data = response.body.replace("'", '"').replace('u"', '"')
-                    data = json.loads(data)
-                    del(data['code'])
-                    del(data['type'])
-                    self.db.accesses.update(
-                        {'code': code},
-                        {'$set': {'type': 'journal'}, '$inc': data},
-                        safe=False,
-                        upsert=True
-                    )
-
         self.db.accesses.find({"code": code, "type": "journal"}, {"_id": 0}, limit=1, callback=self._on_get_response)
 
 
