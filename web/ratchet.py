@@ -46,6 +46,10 @@ def authenticated(func):
 
             if len(response) != 1:
                 raise tornado.web.HTTPError(401)
+            else:
+                self._owner = response[0]
+                r = func(self, *args, **kwargs)
+                return r 
 
         api_token = self.get_argument('api_token', None)
 
@@ -53,8 +57,7 @@ def authenticated(func):
             raise tornado.web.HTTPError(401)
 
         self.tkdb.token.find({'token': api_token}, {'_id': 0}, callback=_call_back_auth)
-        r = func(self, *args, **kwargs)
-        return r 
+
     return wrapper
 
 class Application(tornado.web.Application):
@@ -240,7 +243,7 @@ class BulkPdfHandler(tornado.web.RequestHandler):
         del data['issue']
 
         self.db.accesses.update(
-            {'code': code},
+            {'code': code, 'domain': self._owner['domain']},
             {'$set': {'type': 'article', 'journal': journal, 'issue': issue}, '$inc': data},
             safe=False,
             upsert=True
@@ -291,7 +294,7 @@ class PdfHandler(tornado.web.RequestHandler):
                 inc['region.' + region] = 1
 
         self.db.accesses.update(
-            {'code': code}, {
+            {'code': code, 'domain': self._owner['domain']}, {
                 '$set': {
                     'type': 'article',
                     'journal': journal,
@@ -357,7 +360,7 @@ class GeneralHandler(tornado.web.RequestHandler):
             inc[page + '.total'] = 1
 
         self.db.accesses.update(
-            {'code': code}, {
+            {'code': code, 'domain': self._owner['domain']}, {
                 '$inc': inc
             },
             safe=False,
@@ -405,7 +408,7 @@ class BulkArticleHandler(tornado.web.RequestHandler):
         del data['issue']
 
         self.db.accesses.update(
-            {'code': code}, {
+            {'code': code, 'domain': self._owner['domain']}, {
                 '$set': {
                     'type': 'article',
                     'journal': journal,
@@ -474,7 +477,7 @@ class ArticleHandler(tornado.web.RequestHandler):
                 inc['region.' + region] = 1
 
         self.db.accesses.update(
-            {'code': code}, {
+            {'code': code, 'domain': self._owner['domain']}, {
                 '$set': {
                     'type': 'article',
                     'journal': journal,
@@ -518,7 +521,7 @@ class BulkIssueHandler(tornado.web.RequestHandler):
         del data['journal']
 
         self.db.accesses.update(
-            {'code': code}, {
+            {'code': code, 'domain': self._owner['domain']}, {
                 '$set': {
                     'type': 'issue',
                     'journal': journal
@@ -585,7 +588,7 @@ class IssueHandler(tornado.web.RequestHandler):
                 inc['region.' + region] = 1
 
         self.db.accesses.update(
-            {'code': code}, {
+            {'code': code, 'domain': self._owner['domain']}, {
                 '$set': {
                     'type': 'issue',
                     'journal': journal
@@ -626,7 +629,7 @@ class BulkJournalHandler(tornado.web.RequestHandler):
         del data['code']
 
         self.db.accesses.update(
-            {'code': code}, {
+            {'code': code, 'domain': self._owner['domain']}, {
                 '$set': {'type': 'journal'},
                 '$inc': data},
             safe=False,
@@ -689,7 +692,7 @@ class JournalHandler(tornado.web.RequestHandler):
                 inc['region.' + region] = 1
 
         self.db.accesses.update(
-            {'code': code}, {
+            {'code': code, 'domain': self._owner['domain']}, {
                 '$set': {
                     'type': 'journal'
                     },
