@@ -534,9 +534,6 @@ class BulkIssueHandler(tornado.web.RequestHandler):
 
 class IssueHandler(tornado.web.RequestHandler):
 
-    def _remove_callback(self, response, error):
-        pass
-
     def _on_get_response(self, response, error):
         if error:
             raise tornado.web.HTTPError(500)
