@@ -140,10 +140,16 @@ Parameters
             "article.y2012.m11.total": 30,
             "article.y2012.total": 330,
             "total": 330,
-            "bra": 200,
-            "mex": 100,
-            "arg": 10,
-            "col": 20
+            "bra.y2012.m11.a01": 20,
+            "bra.y2012.m11.a02": 200,
+            "bra.y2012.m11.total": 220,
+            "bra.y2012.total": 220,
+            "bra.total": 220,
+            "mex.y2012.m11.a01": 10,
+            "mex.y2012.m11.a02": 110,
+            "mex.y2012.m11.total": 110,
+            "mex.y2012.total": 110,
+            "mex.total": 110
         }
 
 Query Sample
@@ -177,10 +183,16 @@ Parameters
             "pdf.y2012.m11.total": 30,
             "pdf.y2012.total": 330,
             "total": 330,
-            "bra": 200,
-            "mex": 100,
-            "arg": 10,
-            "col": 20
+            "bra.y2012.m11.a01": 20,
+            "bra.y2012.m11.a02": 200,
+            "bra.y2012.m11.total": 220,
+            "bra.y2012.total": 220,
+            "bra.total": 220,
+            "mex.y2012.m11.a01": 10,
+            "mex.y2012.m11.a02": 110,
+            "mex.y2012.m11.total": 110,
+            "mex.y2012.total": 110,
+            "mex.total": 110
         }
 
 Query Sample
@@ -212,10 +224,16 @@ Parameters
             "issue.y2012.m11.total": 30,
             "issue.y2012.total": 330,
             "total": 330,
-            "bra": 200,
-            "mex": 100,
-            "arg": 10,
-            "col": 20
+            "bra.y2012.m11.a01": 20,
+            "bra.y2012.m11.a02": 200,
+            "bra.y2012.m11.total": 220,
+            "bra.y2012.total": 220,
+            "bra.total": 220,
+            "mex.y2012.m11.a01": 10,
+            "mex.y2012.m11.a02": 110,
+            "mex.y2012.m11.total": 110,
+            "mex.y2012.total": 110,
+            "mex.total": 110
         }
 
 Query Sample
@@ -246,10 +264,16 @@ Parameters
             "journal.y2012.m11.total": 30,
             "journal.y2012.total": 330,
             "total": 330,
-            "bra": 200,
-            "mex": 100,
-            "arg": 10,
-            "col": 20
+            "bra.y2012.m11.a01": 20,
+            "bra.y2012.m11.a02": 200,
+            "bra.y2012.m11.total": 220,
+            "bra.y2012.total": 220,
+            "bra.total": 220,
+            "mex.y2012.m11.a01": 10,
+            "mex.y2012.m11.a02": 110,
+            "mex.y2012.m11.total": 110,
+            "mex.y2012.total": 110,
+            "mex.total": 110
         }
 
 Query Sample
