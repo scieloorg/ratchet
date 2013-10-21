@@ -380,6 +380,41 @@ class GeneralHandler(tornado.web.RequestHandler):
         self.db.accesses.find(query, {"_id": 0}, limit=limit, callback=self._on_get_response)
 
 
+class BulkGeneralHandler(tornado.web.RequestHandler):
+
+    @property
+    def db(self):
+        self._db = self.application.db
+        return self._db
+
+    @authenticated
+    def post(self):
+        data = self.get_argument('data', 'No data received')
+        page = self.get_argument('page', None)
+
+        data = json.loads(data)
+
+        code = data['code']
+        journal = data['journal']
+        issue = data['issue']
+
+        del data['code']
+        del data['journal']
+        del data['issue']
+
+        self.db.accesses.update(
+            {'code': code}, {
+                '$set': {
+                    'type': 'article',
+                    'journal': journal,
+                    'issue': issue,
+                    'page': page,
+                    },
+                '$inc': data
+                },
+            safe=False,
+            upsert=True)
+
 class BulkArticleHandler(tornado.web.RequestHandler):
 
     @property
