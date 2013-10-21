@@ -281,6 +281,146 @@ Query Sample
 
     /api/v1/journal/bulk?data=<JSON DATA>
 
+
+---------------------
+Bulk General Accesses 
+---------------------
+
+    **resource:** /api/v1/general/bulk
+
+Parameters for pdf accesses into an article resource
+-----------------------------------------------------
+
+    **data:** Accesses from a specific document in JSON format.::
+
+        {
+            "code": "S0034-89102009000400003",
+            "journal": "0034-8910",
+            "issue": "0034-891020090004",
+            "pdf.y2011.m10.d01": 100,
+            "pdf.y2011.m10.d02": 100,
+            "pdf.y2011.m10.d03": 100,
+            "pdf.y2012.m11.d01": 10,
+            "pdf.y2012.m11.a02": 10,
+            "pdf.y2012.m11.a03": 10,
+            "pdf.y2012.m10.total": 300,
+            "pdf.y2012.m11.total": 30,
+            "pdf.y2012.total": 330,
+            "pdf.total": 330,
+            "total": 330,
+            "bra.y2012.m11.a01": 20,
+            "bra.y2012.m11.a02": 200,
+            "bra.y2012.m11.total": 220,
+            "bra.y2012.total": 220,
+            "bra.total": 220,
+            "mex.y2012.m11.a01": 10,
+            "mex.y2012.m11.a02": 110,
+            "mex.y2012.m11.total": 110,
+            "mex.y2012.total": 110,
+            "mex.total": 110
+        }
+
+Parameters for abstract accesses into an article resource
+---------------------------------------------------------
+
+    **data:** Accesses from a specific document in JSON format.::
+
+        {
+            "code": "S0034-89102009000400003",
+            "journal": "0034-8910",
+            "issue": "0034-891020090004",
+            "abstract.y2011.m10.d01": 100,
+            "abstract.y2011.m10.d02": 100,
+            "abstract.y2011.m10.d03": 100,
+            "abstract.y2012.m11.d01": 10,
+            "abstract.y2012.m11.a02": 10,
+            "abstract.y2012.m11.a03": 10,
+            "abstract.y2012.m10.total": 300,
+            "abstract.y2012.m11.total": 30,
+            "abstract.y2012.total": 330,
+            "abstract.total": 330,
+            "total": 330,
+            "bra.y2012.m11.a01": 20,
+            "bra.y2012.m11.a02": 200,
+            "bra.y2012.m11.total": 220,
+            "bra.y2012.total": 220,
+            "bra.total": 220,
+            "mex.y2012.m11.a01": 10,
+            "mex.y2012.m11.a02": 110,
+            "mex.y2012.m11.total": 110,
+            "mex.y2012.total": 110,
+            "mex.total": 110
+        }
+
+Parameters for html accesses into an article resource
+-----------------------------------------------------
+
+    **data:** Accesses from a specific document in JSON format.::
+
+        {
+            "code": "S0034-89102009000400003",
+            "journal": "0034-8910",
+            "issue": "0034-891020090004",
+            "html.y2011.m10.d01": 100,
+            "html.y2011.m10.d02": 100,
+            "html.y2011.m10.d03": 100,
+            "html.y2012.m11.d01": 10,
+            "html.y2012.m11.a02": 10,
+            "html.y2012.m11.a03": 10,
+            "html.y2012.m10.total": 300,
+            "html.y2012.m11.total": 30,
+            "html.y2012.total": 330,
+            "html.total": 330,
+            "total": 330,
+            "bra.y2012.m11.a01": 20,
+            "bra.y2012.m11.a02": 200,
+            "bra.y2012.m11.total": 220,
+            "bra.y2012.total": 220,
+            "bra.total": 220,
+            "mex.y2012.m11.a01": 10,
+            "mex.y2012.m11.a02": 110,
+            "mex.y2012.m11.total": 110,
+            "mex.y2012.total": 110,
+            "mex.total": 110
+        }
+
+Parameters for other accesses into an article resource
+------------------------------------------------------
+
+    **data:** Accesses from a specific document in JSON format.::
+
+        {
+            "code": "S0034-89102009000400003",
+            "journal": "0034-8910",
+            "issue": "0034-891020090004",
+            "other.y2011.m10.d01": 100,
+            "other.y2011.m10.d02": 100,
+            "other.y2011.m10.d03": 100,
+            "other.y2012.m11.d01": 10,
+            "other.y2012.m11.a02": 10,
+            "other.y2012.m11.a03": 10,
+            "other.y2012.m10.total": 300,
+            "other.y2012.m11.total": 30,
+            "other.y2012.total": 330,
+            "other.total": 330,
+            "total": 330,
+            "bra.y2012.m11.a01": 20,
+            "bra.y2012.m11.a02": 200,
+            "bra.y2012.m11.total": 220,
+            "bra.y2012.total": 220,
+            "bra.total": 220,
+            "mex.y2012.m11.a01": 10,
+            "mex.y2012.m11.a02": 110,
+            "mex.y2012.m11.total": 110,
+            "mex.y2012.total": 110,
+            "mex.total": 110
+        }
+
+Query Sample
+------------
+
+    /api/v1/journal/bulk?data=<JSON DATA>
+
 GET Services
 ============
 

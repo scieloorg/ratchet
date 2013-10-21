@@ -282,26 +282,29 @@ class BulkGeneralHandler(tornado.web.RequestHandler):
 
     def post(self):
         data = self.get_argument('data', 'No data received')
-        page = self.get_argument('page', None)
 
         data = json.loads(data)
 
         code = data['code']
-        journal = data['journal']
-        issue = data['issue']
+
+        if 'journal' in data:
+            journal = data['journal']
+            del data['journal']
+
+        if 'issue' in data:
+            issue = data['issue']
+            del data['issue']
+
+        include_set = {
+                        'journal': journal,
+                        'issue': issue,
+                      }
 
         del data['code']
-        del data['journal']
-        del data['issue']
 
         self.db.accesses.update(
             {'code': code}, {
-                '$set': {
-                    'type': 'article',
-                    'journal': journal,
-                    'issue': issue,
-                    'page': page,
-                    },
+                '$set': include_set,
                 '$inc': data
                 },
             safe=False,
