@@ -392,6 +392,8 @@ class BulkGeneralHandler(tornado.web.RequestHandler):
         data = self.get_argument('data', 'No data received')
         typ = self.get_argument('page', None)
         page = self.get_argument('type', None)
+        journal = self.get_argument('journal', None)
+        issue =  self.get_argument('issue', None)
 
         data = json.loads(data)
 
@@ -402,6 +404,7 @@ class BulkGeneralHandler(tornado.web.RequestHandler):
         del data['code']
         del data['journal']
         del data['issue']
+        del data['typ']
 
         self.db.accesses.update(
             {'code': code}, {
