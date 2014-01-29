@@ -222,8 +222,9 @@ class GeneralHandler(tornado.web.RequestHandler):
         return self._db
 
     def post(self):
-        code = self.get_argument('code')
+        code = self.get_argument('code').split(',')
         page = self.get_argument('page', None)
+        type_doc = self.get_argument('type_doc', None)
         access_date = self.get_argument('access_date', None)
 
         if access_date:
@@ -246,16 +247,19 @@ class GeneralHandler(tornado.web.RequestHandler):
             'total': 1
         }
 
+        dat = {}
         if page:
             inc[page + '.' + lday] = 1
             inc[page + '.' + lmonth] = 1
             inc[page + '.' + lyear] = 1
             inc[page + '.total'] = 1
+            dat['$inc'] = inc
+
+        if type_doc:
+            dat['$set'] = {'type': type_doc}
 
         self.db.accesses.update(
-            {'code': code}, {
-                '$inc': inc
-            },
+            {'code': code}, dat,
             safe=False,
             upsert=True)
 
@@ -599,6 +603,6 @@ class JournalHandler(tornado.web.RequestHandler):
 
 if __name__ == '__main__':
     tornado.options.parse_command_line()
-    http_server = tornado.httpserver.HTTPServer(Application())
+    http_server = tornado.httpserver.HTTPServer(Application(), no_keep_alive=True)
     http_server.listen(options.port)
     tornado.ioloop.IOLoop.instance().start()
