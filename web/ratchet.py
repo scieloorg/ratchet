@@ -222,10 +222,13 @@ class GeneralHandler(tornado.web.RequestHandler):
         return self._db
 
     def post(self):
-        code = self.get_argument('code').split(',')
+        code = [i.upper() for i in self.get_argument('code').split(',')]
         page = self.get_argument('page', None)
         type_doc = self.get_argument('type_doc', None)
         access_date = self.get_argument('access_date', None)
+
+        if len(code) == 1:
+            code = code[0]
 
         if access_date:
             day = access_date[8:10]
