@@ -1,7 +1,10 @@
 import urllib
 import urllib2
+import uuid
 import json
 from datetime import date
+from functools import wraps
+
 from pymongo import Connection
 
 from tornado import (
@@ -31,7 +34,26 @@ define("mongodb_max_usage", default=0, help="run MongoDB with the given max cach
 define("mongodb_min_cached", default=1000, help="run MongoDB with the given min cached", type=int)
 define("resources", default=None, help="indicates a txt file with api resources. Once this parameter is defined, the API will just work as accesses delivery.", type=str)
 define("allowed_hosts", default=None, help="indicates a txt file with hostnames allowed to post data.", type=str)
+define("manager_token", default=str(uuid.uuid4()), help="indicates a token that must be used to manage allowed_tokens.", type=str)
 define("broadcast_timeout", default=1, help="indicates the max timeout in seconds that the broadcast must finish.", type=str)
+
+
+def authenticated(func):
+    @wraps(func)
+    def wrapper(self, *args, **kwargs):
+
+        api_token = self.get_argument('api_token', None)
+
+        if not api_token:
+            raise tornado.web.HTTPError(401)
+
+        if api_token != self.application.manager_token:
+            raise tornado.web.HTTPError(401)
+        else:
+            r = func(self, *args, **kwargs)
+            return r
+
+    return wrapper
 
 
 class Application(tornado.web.Application):
@@ -66,6 +88,7 @@ class Application(tornado.web.Application):
 
         # Local is the default the default way that ratchet works.
         self.broadcast_timeout = options.broadcast_timeout
+        self.manager_token = options.manager_token
         self.api_style = 'local'
         self.resources = {}
         if options.resources:
@@ -124,7 +147,13 @@ class GeneralHandler(tornado.web.RequestHandler):
             raise tornado.web.HTTPError(500)
 
         if len(response) > 0:
-            self.write(json.dumps(response))
+
+            if len(response) == 1:
+                data = response[0]
+            else:
+                data = None
+
+            self.write(json.dumps(data))
 
         self.finish()
 
@@ -133,6 +162,7 @@ class GeneralHandler(tornado.web.RequestHandler):
         self._db = self.application.db
         return self._db
 
+    @authenticated
     def post(self):
         code = self.get_argument('code')
         page = self.get_argument('page', None)
@@ -196,6 +226,7 @@ class BulkGeneralHandler(tornado.web.RequestHandler):
         self._db = self.application.db
         return self._db
 
+    @authenticated
     def post(self):
         data = self.get_argument('data', 'No data received')
 
