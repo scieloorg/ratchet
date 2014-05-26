@@ -382,13 +382,13 @@ Query Sample
         "y2011": {
             "total": 78, 
             "m01": {
-                "d15": 78, 
+                "d15": 78,
                 "total": 78
             }
         }, 
         "sci_pdf": {
             "y2011": {
-                "total": 78, 
+                "total": 78,
                 "m01": {
                     "d15": 78, 
                     "total": 78
