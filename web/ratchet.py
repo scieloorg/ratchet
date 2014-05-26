@@ -146,14 +146,11 @@ class GeneralHandler(tornado.web.RequestHandler):
         if error:
             raise tornado.web.HTTPError(500)
 
-        if len(response) > 0:
+        data = None
+        if len(response) == 1:
+            data = response[0]
 
-            if len(response) == 1:
-                data = response[0]
-            else:
-                data = None
-
-            self.write(json.dumps(data))
+        self.write(json.dumps(data))
 
         self.finish()
 
