@@ -69,6 +69,7 @@ class Application(tornado.web.Application):
         handlers = [
             (r"^/$", RootHandler),
             (r"^$", RootHandler),
+            (r"^/api/v1", EndpointsHandler),
             (r"^/api/v1/general", GeneralHandler),
             (r"^/api/v1/general/bulk", BulkGeneralHandler),
             (r"^/api/v1/journals", JournalHandler),
@@ -235,6 +236,24 @@ class BulkGeneralHandler(tornado.web.RequestHandler):
                 },
             safe=False,
             upsert=True)
+
+
+class EndpointsHandler(tornado.web.RequestHandler):
+
+    rdata = {}
+
+    @tornado.web.asynchronous
+    @tornado.gen.engine
+    def get(self, code=None):
+
+        endpoints = ['general', 'journals', 'issues', 'articles']
+
+        available_endpoints = {}
+        for endpoint in endpoints:
+            available_endpoints[endpoint] = {'list_endpoint': '/api/v1/%s' % endpoint}
+
+        self.write(json.dumps(available_endpoints))
+        self.finish()
 
 
 class JournalHandler(tornado.web.RequestHandler):
