@@ -2,6 +2,8 @@ import urllib
 import urllib2
 import uuid
 import json
+import re
+
 from datetime import date
 from functools import wraps
 
@@ -32,10 +34,16 @@ define("mongodb_max_connections", default=2000, help="run MongoDB with the given
 define("mongodb_max_cached", default=0, help="run MongoDB with the given max cached", type=int)
 define("mongodb_max_usage", default=0, help="run MongoDB with the given max cached", type=int)
 define("mongodb_min_cached", default=1000, help="run MongoDB with the given min cached", type=int)
-define("resources", default=None, help="indicates a txt file with api resources. Once this parameter is defined, the API will just work as accesses delivery.", type=str)
 define("allowed_hosts", default=None, help="indicates a txt file with hostnames allowed to post data.", type=str)
 define("manager_token", default=str(uuid.uuid4()), help="indicates a token that must be used to manage allowed_tokens.", type=str)
 define("broadcast_timeout", default=1, help="indicates the max timeout in seconds that the broadcast must finish.", type=str)
+
+
+LIMIT = 20
+REGEX_ISSN = re.compile("^[0-9]{4}-[0-9]{3}[0-9xX]$")
+REGEX_ISSUE = re.compile("^[0-9]{4}-[0-9]{3}[0-9xX][0-2][0-9]{3}[0-9]{4}$")
+REGEX_ARTICLE = re.compile("^S[0-9]{4}-[0-9]{3}[0-9xX][0-2][0-9]{3}[0-9]{4}[0-9]{5}$")
+REGEX_FBPE = re.compile("^S[0-9]{4}-[0-9]{3}[0-9xX]\([0-9]{2}\)[0-9]{8}$")
 
 
 def authenticated(func):
@@ -59,9 +67,16 @@ def authenticated(func):
 class Application(tornado.web.Application):
     def __init__(self):
         handlers = [
-            (r"/", RootHandler),
-            (r"/api/v1/general", GeneralHandler),
-            (r"/api/v1/general/bulk", BulkGeneralHandler)
+            (r"^/$", RootHandler),
+            (r"^$", RootHandler),
+            (r"^/api/v1/general", GeneralHandler),
+            (r"^/api/v1/general/bulk", BulkGeneralHandler),
+            (r"^/api/v1/journals", JournalHandler),
+            (r"^/api/v1/journals/(?P<code>.*?)", JournalHandler),
+            (r"^/api/v1/issues", IssueHandler),
+            (r"^/api/v1/issues/(?P<code>.*?)", IssueHandler),
+            (r"^/api/v1/articles", ArticleHandler),
+            (r"^/api/v1/articles/(?P<code>.*?)", ArticleHandler),
         ]
 
         # Creating Indexes without asyncmongo.
@@ -90,16 +105,6 @@ class Application(tornado.web.Application):
         self.broadcast_timeout = options.broadcast_timeout
         self.manager_token = options.manager_token
         self.api_style = 'local'
-        self.resources = {}
-        if options.resources:
-            with open(options.resources) as f:
-                for line in f:
-                    line = line.split(';')
-                    self.resources[line[0]] = line[1]
-
-            if len(self.resources) > 0:
-                self.api_style = 'global'
-                handlers.append((r"/api/v1/resources", ResourcesHandler))
 
         tornado.web.Application.__init__(self, handlers)
 
@@ -112,31 +117,8 @@ class BaseHandler(tornado.web.RequestHandler):
 
 class RootHandler(tornado.web.RequestHandler):
     def get(self):
-        if self.application.api_style == 'global':
-            self.write("Another Ratchet Global Resource")
-        else:
-            self.write("Another Ratchet Local Resource")
-        self.finish()
 
-
-class ResourcesHandler(tornado.web.RequestHandler):
-
-    def get(self):
-        response = {}
-        for resource_name, resource_url in self.application.resources.items():
-
-            resource_url = resource_url.strip()
-            url = "http://%s/" % resource_url
-            response[resource_name] = {}
-            response[resource_name]['host'] = resource_url
-            try:
-                urllib2.urlopen(url)
-                response[resource_name]['status'] = 'online'
-            except urllib2.URLError:
-                response[resource_name]['status'] = 'offline'
-                continue
-
-        self.write(str(response))
+        self.write("Ratchet API")
         self.finish()
 
 
@@ -254,8 +236,192 @@ class BulkGeneralHandler(tornado.web.RequestHandler):
             safe=False,
             upsert=True)
 
+
+class JournalHandler(tornado.web.RequestHandler):
+
+    rdata = {}
+
+    def _on_count_get_response(self, response, error):
+        if error:
+            raise tornado.web.HTTPError(500)
+
+        header = self.rdata.setdefault('header', {})
+
+        header['total'] = response['n']
+
+    def _on_get_response(self, response, error):
+        if error:
+            raise tornado.web.HTTPError(500)
+
+        header = self.rdata.setdefault('header', {})
+        header['limit'] = LIMIT
+        header['offset'] = self.get_argument('offset', 0)
+        self.rdata['objects'] = response
+
+        self.write(json.dumps(self.rdata))
+
+        self.finish()
+
+    @property
+    def db(self):
+        self._db = self.application.db
+        return self._db
+
+    @tornado.web.asynchronous
+    @tornado.gen.engine
+    def get(self, code=None):
+        offset = int(self.get_argument('offset', 0))
+
+        query = {'type': 'journal'}
+
+        if code:
+            if REGEX_ISSN.search(code):
+                query['code'] = code
+            else:
+                raise tornado.web.HTTPError(400)
+
+        command = {
+            'count': 'accesses',
+            'query': query
+        }
+
+        self.db.command(command, callback=self._on_count_get_response)
+
+        self.db.accesses.find(
+            query,
+            {"_id": 0},
+            limit=LIMIT,
+            skip=offset,
+            sort=[('total', -1)],
+            callback=self._on_get_response
+        )
+
+
+class IssueHandler(tornado.web.RequestHandler):
+
+    rdata = {}
+
+    def _on_count_get_response(self, response, error):
+        if error:
+            raise tornado.web.HTTPError(500)
+
+        header = self.rdata.setdefault('header', {})
+
+        header['total'] = response['n']
+
+    def _on_get_response(self, response, error):
+        if error:
+            raise tornado.web.HTTPError(500)
+
+        header = self.rdata.setdefault('header', {})
+        header['limit'] = LIMIT
+        header['offset'] = self.get_argument('offset', 0)
+        self.rdata['objects'] = response
+
+        self.write(json.dumps(self.rdata))
+
+        self.finish()
+
+    @property
+    def db(self):
+        self._db = self.application.db
+        return self._db
+
+    @tornado.web.asynchronous
+    @tornado.gen.engine
+    def get(self, code=None):
+        offset = int(self.get_argument('offset', 0))
+
+        query = {'type': 'toc'}
+
+        if code:
+            if REGEX_ISSUE.search(code):
+                query['code'] = code
+            else:
+                raise tornado.web.HTTPError(400)
+
+        command = {
+            'count': 'accesses',
+            'query': query
+        }
+
+        self.db.command(command, callback=self._on_count_get_response)
+
+        self.db.accesses.find(
+            query,
+            {"_id": 0},
+            limit=LIMIT,
+            skip=offset,
+            sort=[('total', -1)],
+            callback=self._on_get_response
+        )
+
+
+class ArticleHandler(tornado.web.RequestHandler):
+
+    rdata = {}
+
+    def _on_count_get_response(self, response, error):
+        if error:
+            raise tornado.web.HTTPError(500)
+
+        header = self.rdata.setdefault('header', {})
+
+        header['total'] = response['n']
+
+    def _on_get_response(self, response, error):
+        if error:
+            raise tornado.web.HTTPError(500)
+
+        header = self.rdata.setdefault('header', {})
+        header['limit'] = LIMIT
+        header['offset'] = self.get_argument('offset', 0)
+        self.rdata['objects'] = response
+
+        self.write(json.dumps(self.rdata))
+
+        self.finish()
+
+    @property
+    def db(self):
+        self._db = self.application.db
+        return self._db
+
+    @tornado.web.asynchronous
+    @tornado.gen.engine
+    def get(self, code=None):
+        offset = int(self.get_argument('offset', 0))
+
+        query = {'type': 'article'}
+
+        if code:
+            if REGEX_ARTICLE.search(code) or REGEX_FBPE.search(code):
+                query['code'] = code
+            else:
+                raise tornado.web.HTTPError(400)
+
+        command = {
+            'count': 'accesses',
+            'query': query
+        }
+
+        self.db.command(command, callback=self._on_count_get_response)
+
+        self.db.accesses.find(
+            query,
+            {"_id": 0},
+            limit=LIMIT,
+            skip=offset,
+            sort=[('total', -1)],
+            callback=self._on_get_response
+        )
+
+
 if __name__ == '__main__':
     tornado.options.parse_command_line()
-    http_server = tornado.httpserver.HTTPServer(Application(), no_keep_alive=True)
+    http_server = tornado.httpserver.HTTPServer(
+        Application(),
+        no_keep_alive=True
+    )
     http_server.listen(options.port)
     tornado.ioloop.IOLoop.instance().start()
