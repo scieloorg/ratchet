@@ -68,15 +68,15 @@ def authenticated(func):
 class Application(tornado.web.Application):
     def __init__(self):
         handlers = [
-            (r"^/$", RootHandler),
-            (r"^/api/v1/$", EndpointsHandler),
+            (r"^/?", RootHandler),
+            (r"^/api/v1/?", EndpointsHandler),
             (r"^/api/v1/general", GeneralHandler),
             (r"^/api/v1/general/bulk", BulkGeneralHandler),
-            (r"^/api/v1/journals/", JournalHandler),
+            (r"^/api/v1/journals/?", JournalHandler),
             (r"^/api/v1/journals/(?P<code>.*?)/?", JournalHandler),
-            (r"^/api/v1/issues/", IssueHandler),
+            (r"^/api/v1/issues/?", IssueHandler),
             (r"^/api/v1/issues/(?P<code>.*?)/?", IssueHandler),
-            (r"^/api/v1/articles/", ArticleHandler),
+            (r"^/api/v1/articles/?", ArticleHandler),
             (r"^/api/v1/articles/(?P<code>.*?)/?", ArticleHandler),
         ]
 
@@ -251,7 +251,7 @@ class EndpointsHandler(tornado.web.RequestHandler):
 
         available_endpoints = {}
         for endpoint in endpoints:
-            available_endpoints[endpoint] = {'list_endpoint': '/api/v1/%s' % endpoint}
+            available_endpoints[endpoint] = {'list_endpoint': '/api/v1/%s/' % endpoint}
 
         self.write(json.dumps(available_endpoints))
         self.finish()
