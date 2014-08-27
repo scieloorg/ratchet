@@ -32,6 +32,8 @@ API Wrapper
 
 The Ratchet RESTFul API has also a wrapper library written in python that may be used to make the harvesting of data easier.
 
+http://scielo.readthedocs.org/projects/ratchetapipy/en/latest/
+
 License
 -------
 
