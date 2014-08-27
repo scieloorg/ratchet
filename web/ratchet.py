@@ -26,7 +26,8 @@ from tornado.options import (
 import tornado
 import asyncmongo
 
-define("port", default=8888, help="run on the given port", type=int)
+define("host", default='localhost', help="run on the given host")
+define("port", default=80, help="run on the given port", type=int)
 define("mongodb_port", default=27017, help="run MongoDB on the given port", type=int)
 define("mongodb_host", default='localhost', help="run MongoDB on the given hostname")
 define("mongodb_database", default='analytics', help="Record accesses on the given database")
@@ -68,16 +69,15 @@ class Application(tornado.web.Application):
     def __init__(self):
         handlers = [
             (r"^/$", RootHandler),
-            (r"^$", RootHandler),
-            (r"^/api/v1", EndpointsHandler),
+            (r"^/api/v1/$", EndpointsHandler),
             (r"^/api/v1/general", GeneralHandler),
             (r"^/api/v1/general/bulk", BulkGeneralHandler),
-            (r"^/api/v1/journals", JournalHandler),
-            (r"^/api/v1/journals/(?P<code>.*?)", JournalHandler),
-            (r"^/api/v1/issues", IssueHandler),
-            (r"^/api/v1/issues/(?P<code>.*?)", IssueHandler),
-            (r"^/api/v1/articles", ArticleHandler),
-            (r"^/api/v1/articles/(?P<code>.*?)", ArticleHandler),
+            (r"^/api/v1/journals/", JournalHandler),
+            (r"^/api/v1/journals/(?P<code>.*?)/?", JournalHandler),
+            (r"^/api/v1/issues/", IssueHandler),
+            (r"^/api/v1/issues/(?P<code>.*?)/?", IssueHandler),
+            (r"^/api/v1/articles/", ArticleHandler),
+            (r"^/api/v1/articles/(?P<code>.*?)/?", ArticleHandler),
         ]
 
         # Creating Indexes without asyncmongo.
@@ -244,6 +244,7 @@ class EndpointsHandler(tornado.web.RequestHandler):
 
     @tornado.web.asynchronous
     @tornado.gen.engine
+    @tornado.web.addslash
     def get(self, code=None):
 
         endpoints = ['general', 'journals', 'issues', 'articles']
@@ -256,29 +257,51 @@ class EndpointsHandler(tornado.web.RequestHandler):
         self.finish()
 
 
+def get_next(endpoint, total, limit, offset):
+
+    offset += limit
+    if offset >= total:
+        return None
+
+    return '/api/v1/%s?offset=%s' % (endpoint, offset)
+
+
+def get_previous(endpoint, total, limit, offset):
+    offset -= limit
+    if offset <= 0:
+        return None
+
+    return '/api/v1/%s?offset=%s' % (endpoint, offset)
+
+
 class JournalHandler(tornado.web.RequestHandler):
 
     rdata = {}
+    total = None
 
     def _on_count_get_response(self, response, error):
         if error:
             raise tornado.web.HTTPError(500)
 
-        header = self.rdata.setdefault('header', {})
-
-        header['total'] = response['n']
+        self.total = response['n']
 
     def _on_get_response(self, response, error):
         if error:
             raise tornado.web.HTTPError(500)
 
-        header = self.rdata.setdefault('header', {})
-        header['limit'] = LIMIT
-        header['offset'] = self.get_argument('offset', 0)
+        meta = self.rdata.setdefault('meta', {})
+        meta['limit'] = LIMIT
+        meta['offset'] = self.get_argument('offset', 0)
         self.rdata['objects'] = response
 
-        self.write(json.dumps(self.rdata))
+        while not self.total:
+            pass
 
+        meta['total'] = self.total
+        meta['next'] = get_next('journals', meta['total'], meta['limit'], int(meta['offset']))
+        meta['previous'] = get_previous('journals', meta['total'], meta['limit'], int(meta['offset']))
+
+        self.write(json.dumps(self.rdata))
         self.finish()
 
     @property
@@ -288,6 +311,7 @@ class JournalHandler(tornado.web.RequestHandler):
 
     @tornado.web.asynchronous
     @tornado.gen.engine
+    @tornado.web.addslash
     def get(self, code=None):
         offset = int(self.get_argument('offset', 0))
 
@@ -319,23 +343,29 @@ class JournalHandler(tornado.web.RequestHandler):
 class IssueHandler(tornado.web.RequestHandler):
 
     rdata = {}
+    total = None
 
     def _on_count_get_response(self, response, error):
         if error:
             raise tornado.web.HTTPError(500)
 
-        header = self.rdata.setdefault('header', {})
-
-        header['total'] = response['n']
+        self.total = response['n']
 
     def _on_get_response(self, response, error):
         if error:
             raise tornado.web.HTTPError(500)
 
-        header = self.rdata.setdefault('header', {})
-        header['limit'] = LIMIT
-        header['offset'] = self.get_argument('offset', 0)
+        meta = self.rdata.setdefault('meta', {})
+        meta['limit'] = LIMIT
+        meta['offset'] = self.get_argument('offset', 0)
         self.rdata['objects'] = response
+
+        while not self.total:
+            pass
+
+        meta['total'] = self.total
+        meta['next'] = get_next('journals', meta['total'], meta['limit'], int(meta['offset']))
+        meta['previous'] = get_previous('journals', meta['total'], meta['limit'], int(meta['offset']))
 
         self.write(json.dumps(self.rdata))
 
@@ -348,6 +378,7 @@ class IssueHandler(tornado.web.RequestHandler):
 
     @tornado.web.asynchronous
     @tornado.gen.engine
+    @tornado.web.addslash
     def get(self, code=None):
         offset = int(self.get_argument('offset', 0))
 
@@ -379,23 +410,29 @@ class IssueHandler(tornado.web.RequestHandler):
 class ArticleHandler(tornado.web.RequestHandler):
 
     rdata = {}
+    total = None
 
     def _on_count_get_response(self, response, error):
         if error:
             raise tornado.web.HTTPError(500)
 
-        header = self.rdata.setdefault('header', {})
-
-        header['total'] = response['n']
+        self.total = response['n']
 
     def _on_get_response(self, response, error):
         if error:
             raise tornado.web.HTTPError(500)
 
-        header = self.rdata.setdefault('header', {})
-        header['limit'] = LIMIT
-        header['offset'] = self.get_argument('offset', 0)
+        meta = self.rdata.setdefault('meta', {})
+        meta['limit'] = LIMIT
+        meta['offset'] = self.get_argument('offset', 0)
         self.rdata['objects'] = response
+
+        while not self.total:
+            pass
+
+        meta['total'] = self.total
+        meta['next'] = get_next('journals', meta['total'], meta['limit'], int(meta['offset']))
+        meta['previous'] = get_previous('journals', meta['total'], meta['limit'], int(meta['offset']))
 
         self.write(json.dumps(self.rdata))
 
@@ -408,6 +445,7 @@ class ArticleHandler(tornado.web.RequestHandler):
 
     @tornado.web.asynchronous
     @tornado.gen.engine
+    @tornado.web.addslash
     def get(self, code=None):
         offset = int(self.get_argument('offset', 0))
 
@@ -442,5 +480,5 @@ if __name__ == '__main__':
         Application(),
         no_keep_alive=True
     )
-    http_server.listen(options.port)
+    http_server.listen(options.port, address=options.host)
     tornado.ioloop.IOLoop.instance().start()
