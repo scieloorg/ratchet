@@ -32,7 +32,7 @@ API Wrapper
 
 The Ratchet RESTFul API has also a wrapper library written in python that may be used to make the harvesting of data easier.
 
-* ratchetapi.py </projects/ratchetapipy/en/latest/`_
+* `ratchetapi.py </projects/ratchetapipy/en/latest/>`_
 
 License
 -------
