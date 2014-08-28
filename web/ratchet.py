@@ -57,7 +57,7 @@ def get_next(endpoint, total, limit, offset, fltr=None):
     if fltr:
         fltrs += '&%s' % '&'.join(set(['='.join([key, value]) for key, value in fltr.items()]))
 
-    return '/api/v1/%s?offset=%s%s' % (endpoint, offset, fltrs)
+    return '/api/v1/%s/?offset=%s%s' % (endpoint, offset, fltrs)
 
 
 def get_previous(endpoint, total, limit, offset, fltr=None):
@@ -69,7 +69,7 @@ def get_previous(endpoint, total, limit, offset, fltr=None):
     if fltr:
         fltrs += '&%s' % '&'.join(set(['='.join([key, value]) for key, value in fltr.items()]))
 
-    return '/api/v1/%s?offset=%s%s' % (endpoint, offset, fltrs)
+    return '/api/v1/%s/?offset=%s%s' % (endpoint, offset, fltrs)
 
 
 def authenticated(func):
