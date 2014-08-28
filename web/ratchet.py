@@ -47,6 +47,23 @@ REGEX_ARTICLE = re.compile("^S[0-9]{4}-[0-9]{3}[0-9xX][0-2][0-9]{3}[0-9]{4}[0-9]
 REGEX_FBPE = re.compile("^S[0-9]{4}-[0-9]{3}[0-9xX]\([0-9]{2}\)[0-9]{8}$")
 
 
+def get_next(endpoint, total, limit, offset):
+
+    offset += limit
+    if offset >= total:
+        return None
+
+    return '/api/v1/%s?offset=%s' % (endpoint, offset)
+
+
+def get_previous(endpoint, total, limit, offset):
+    offset -= limit
+    if offset < 0:
+        return None
+
+    return '/api/v1/%s?offset=%s' % (endpoint, offset)
+
+
 def authenticated(func):
     @wraps(func)
     def wrapper(self, *args, **kwargs):
@@ -70,8 +87,8 @@ class Application(tornado.web.Application):
         handlers = [
             (r"^/?", RootHandler),
             (r"^/api/v1/?", EndpointsHandler),
-            (r"^/api/v1/general", GeneralHandler),
-            (r"^/api/v1/general/bulk", BulkGeneralHandler),
+            (r"^/api/v1/general/?", GeneralHandler),
+            (r"^/api/v1/general/bulk/?", BulkGeneralHandler),
             (r"^/api/v1/journals/?", JournalHandler),
             (r"^/api/v1/journals/(?P<code>.*?)/?", JournalHandler),
             (r"^/api/v1/issues/?", IssueHandler),
@@ -125,16 +142,33 @@ class RootHandler(tornado.web.RequestHandler):
 
 class GeneralHandler(tornado.web.RequestHandler):
 
+    rdata = {}
+    total = None
+
+    def _on_count_get_response(self, response, error):
+        if error:
+            raise tornado.web.HTTPError(500)
+
+        self.total = response['n']
+
     def _on_get_response(self, response, error):
         if error:
             raise tornado.web.HTTPError(500)
 
-        data = None
-        if len(response) == 1:
-            data = response[0]
+        meta = self.rdata.setdefault('meta', {})
+        meta['limit'] = LIMIT
+        meta['offset'] = self.get_argument('offset', 0)
+        self.rdata['objects'] = response
 
-        self.write(json.dumps(data))
+        while not self.total:
+            pass
 
+        meta['total'] = self.total
+        meta['params'] = self.query
+        meta['next'] = get_next('general', meta['total'], meta['limit'], int(meta['offset']))
+        meta['previous'] = get_previous('general', meta['total'], meta['limit'], int(meta['offset']))
+
+        self.write(json.dumps(self.rdata))
         self.finish()
 
     @property
@@ -143,6 +177,7 @@ class GeneralHandler(tornado.web.RequestHandler):
         return self._db
 
     @authenticated
+    @tornado.web.addslash
     def post(self):
         code = self.get_argument('code')
         page = self.get_argument('page', None)
@@ -187,16 +222,23 @@ class GeneralHandler(tornado.web.RequestHandler):
 
     @tornado.web.asynchronous
     @tornado.gen.engine
+    @tornado.web.addslash
     def get(self):
         code = self.get_argument('code', None)
         type_doc = self.get_argument('type', None)
-        limit = int(self.get_argument('limit', 10))
 
-        query = {"code": code}
+        self.query = {"code": code}
         if type_doc:
-            query = {"type": type_doc}
+            self.query = {"type": type_doc}
 
-        self.db.accesses.find(query, {"_id": 0}, limit=limit, callback=self._on_get_response)
+        command = {
+            'count': 'accesses',
+            'query': self.query
+        }
+
+        self.db.command(command, callback=self._on_count_get_response)
+
+        self.db.accesses.find(self.query, {"_id": 0}, limit=LIMIT, callback=self._on_get_response)
 
 
 class BulkGeneralHandler(tornado.web.RequestHandler):
@@ -255,23 +297,6 @@ class EndpointsHandler(tornado.web.RequestHandler):
 
         self.write(json.dumps(available_endpoints))
         self.finish()
-
-
-def get_next(endpoint, total, limit, offset):
-
-    offset += limit
-    if offset >= total:
-        return None
-
-    return '/api/v1/%s?offset=%s' % (endpoint, offset)
-
-
-def get_previous(endpoint, total, limit, offset):
-    offset -= limit
-    if offset < 0:
-        return None
-
-    return '/api/v1/%s?offset=%s' % (endpoint, offset)
 
 
 class JournalHandler(tornado.web.RequestHandler):
