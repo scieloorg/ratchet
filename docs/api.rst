@@ -199,7 +199,8 @@ Parameters for pdf accesses into an article resource
             "mex.y2012.m11.a02": 110,
             "mex.y2012.m11.total": 110,
             "mex.y2012.total": 110,
-            "mex.total": 110
+            "mex.total": 110,
+            "type": "article"
         }
 
 Parameters for abstract accesses into an article resource
@@ -231,7 +232,8 @@ Parameters for abstract accesses into an article resource
             "mex.y2012.m11.a02": 110,
             "mex.y2012.m11.total": 110,
             "mex.y2012.total": 110,
-            "mex.total": 110
+            "mex.total": 110,
+            "type": "article"
         }
 
 Parameters for html accesses into an article resource
@@ -263,7 +265,8 @@ Parameters for html accesses into an article resource
             "mex.y2012.m11.a02": 110,
             "mex.y2012.m11.total": 110,
             "mex.y2012.total": 110,
-            "mex.total": 110
+            "mex.total": 110,
+            "type": "article"
         }
 
 Parameters for other accesses into an article resource
@@ -295,7 +298,8 @@ Parameters for other accesses into an article resource
             "mex.y2012.m11.a02": 110,
             "mex.y2012.m11.total": 110,
             "mex.y2012.total": 110,
-            "mex.total": 110
+            "mex.total": 110,
+            "type": "article"
         }
 
 Query Sample
@@ -308,55 +312,8 @@ GET Services
 
     The GET HTTP method will be used to request the access stats.
 
-----------------------
-Checking Resource Type
-----------------------
-
-    **resource:** /
-
-Query Sample
-------------
-
-    /
-
-    Response Sample for **local** resource::
-
-        {
-            Another Ratchet Local Resource
-        }
-
-    Response Sample for **global** resource::
-
-        {
-            Another Ratchet Global Resource
-        }
-
--------------------------------
-Cheking the available resources
--------------------------------
-
-    alert::
-
-        Available when the api is configured as a Global Resource
-
-    **resource:** /api/v1/resources
-
-Query Sample
-------------
-
-    /api/v1/resources
-
-    Response Sample::
-
-        {
-            'http://127.0.0.1:8880/': 'online', 
-            'http://127.0.0.1:8890/': 'online', 
-            'http://127.0.0.1:8860/': 'online', 
-            'http://127.0.0.1:8870/': 'offline'
-        }
-
 ---------------------------------------------------------
-Retrieve accesses from any document using general request
+Retrieve accesses from any resource using general request
 ---------------------------------------------------------
 
     **resource:** /api/v1/general
@@ -368,12 +325,12 @@ Parameters
 
     or
     
-    **type:** any document type [journal, issue, article]
+    **type:** any resource type [journal, issue, article]
 
 Query Sample
 ------------
 
-    /api/v1/journal?code=1981-6723
+    /api/v1/general?code=1981-6723
 
     Response sample::
 
@@ -396,3 +353,102 @@ Query Sample
             }
         }
     }
+
+----------------------------------------
+Retrieve accesses from journals resource
+----------------------------------------
+
+    **resource:** /api/v1/journals/
+
+Parameters
+----------
+
+    No parameters expected
+
+Query Sample
+------------
+
+    /api/v1/journals/
+
+    Response sample::
+
+        {
+            meta: {
+                previous: "/api/v1/journals?offset=0",
+                next: "/api/v1/journals?offset=40",
+                total: 334,
+                limit: 20,
+                offset: 20
+            },
+            objects: [
+                {
+                    "code": "1575-1813", 
+                    "y2011": {
+                        "total": 78, 
+                        "m01": {
+                            "d15": 78,
+                            "total": 78
+                        }
+                    }, 
+                    "sci_pdf": {
+                        "y2011": {
+                            "total": 78,
+                            "m01": {
+                                "d15": 78, 
+                                "total": 78
+                            }
+                        }
+                    }
+                }
+            ...
+            ]
+        }
+
+------------------------------------------------------------------
+Retrieve accesses from a specific journal using journals resource
+------------------------------------------------------------------
+
+    **resource:** /api/v1/journals/
+
+Parameters
+----------
+
+    No parameters expected
+
+Query Sample
+------------
+
+    /api/v1/journals/1981-6723/
+
+    Response sample::
+
+        {
+            meta: {
+                previous: null,
+                next: null,
+                total: 1,
+                limit: 20,
+                offset: 0
+            },
+            objects: [
+                {
+                    "code": "1981-6723", 
+                    "y2011": {
+                        "total": 78, 
+                        "m01": {
+                            "d15": 78,
+                            "total": 78
+                        }
+                    }, 
+                    "sci_pdf": {
+                        "y2011": {
+                            "total": 78,
+                            "m01": {
+                                "d15": 78, 
+                                "total": 78
+                            }
+                        }
+                    }
+                }
+            ]
+        }

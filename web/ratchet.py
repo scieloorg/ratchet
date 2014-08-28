@@ -268,7 +268,7 @@ def get_next(endpoint, total, limit, offset):
 
 def get_previous(endpoint, total, limit, offset):
     offset -= limit
-    if offset <= 0:
+    if offset < 0:
         return None
 
     return '/api/v1/%s?offset=%s' % (endpoint, offset)
