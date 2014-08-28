@@ -97,7 +97,9 @@ class Application(tornado.web.Application):
             (r"^/?", RootHandler),
             (r"^/api/v1/?", EndpointsHandler),
             (r"^/api/v1/general/?", GeneralHandler),
+            (r"^/api/v1/general?", GeneralHandler),
             (r"^/api/v1/general/bulk/?", BulkGeneralHandler),
+            (r"^/api/v1/general/bulk?", BulkGeneralHandler),
             (r"^/api/v1/journals/?", JournalHandler),
             (r"^/api/v1/journals/(?P<code>.*?)/?", JournalHandler),
             (r"^/api/v1/issues/?", IssueHandler),
@@ -186,7 +188,6 @@ class GeneralHandler(tornado.web.RequestHandler):
         return self._db
 
     @authenticated
-    @tornado.web.addslash
     def post(self):
         code = self.get_argument('code')
         page = self.get_argument('page', None)
