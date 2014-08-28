@@ -13,7 +13,7 @@ POST Services
 Register an article html access
 -------------------------------
 
-    **resource:** /api/v1/general
+    **resource:** /api/v1/general/
 
 Mandatory Parameters
 --------------------
@@ -39,13 +39,13 @@ Optional Parameters
 Query Sample
 ------------
 
-    /api/v1/article?code=1981-67232014000100002&region=bra&journal=1981-6723&issue=1981-672320140001&type=article_doc&page=fulltext
+    /api/v1/article/?code=1981-67232014000100002&region=bra&journal=1981-6723&issue=1981-672320140001&type=article_doc&page=fulltext
 
 ------------------------------
 Register a PDF download access
 ------------------------------
 
-    **resource:** /api/v1/general
+    **resource:** /api/v1/general/
 
 Mandatory Parameters
 --------------------
@@ -72,13 +72,13 @@ Optional Parameters
 Query Sample
 ------------
 
-    /api/v1/article?code=1981-67232014000100002&region=bra&journal=1981-6723&issue=1981-672320140001&type_doc=article&page=download
+    /api/v1/article/?code=1981-67232014000100002&region=bra&journal=1981-6723&issue=1981-672320140001&type_doc=article&page=download
 
 -------------------------------
 Register a Abstract html access
 -------------------------------
 
-    **resource:** /api/v1/general
+    **resource:** /api/v1/general/
 
 Mandatory Parameters
 --------------------
@@ -105,13 +105,13 @@ Optional Parameters
 Query Sample
 ------------
 
-    /api/v1/article?code=1981-67232014000100002&region=bra&journal=1981-6723&issue=1981-672320140001&type_doc=article&page=abstract
+    /api/v1/article/?code=1981-67232014000100002&region=bra&journal=1981-6723&issue=1981-672320140001&type_doc=article&page=abstract
 
 ------------------------
 Register an issue access
 ------------------------
 
-    **resource:** /api/v1/general
+    **resource:** /api/v1/general/
 
 Parameters
 ----------
@@ -135,13 +135,13 @@ Optional Parameters
 Query Sample
 ------------
 
-    /api/v1/issue?code=1981-672320140001&region=bra&journal=1981-6723&type_doc=toc&page=toc
+    /api/v1/issue/?code=1981-672320140001&region=bra&journal=1981-6723&type_doc=toc&page=toc
 
 -------------------------
 Register a journal access
 -------------------------
 
-    **resource:** /api/v1/general
+    **resource:** /api/v1/general/
 
 Parameters
 ----------
@@ -168,7 +168,7 @@ Query Sample
 Bulk General Accesses 
 ---------------------
 
-    **resource:** /api/v1/general/bulk
+    **resource:** /api/v1/general/bulk/
 
 Parameters for pdf accesses into an article resource
 -----------------------------------------------------
@@ -305,7 +305,7 @@ Parameters for other accesses into an article resource
 Query Sample
 ------------
 
-    /api/v1/journal/bulk?data=<JSON DATA>
+    /api/v1/journal/bulk/?data=<JSON DATA>
 
 GET Services
 ============
@@ -316,7 +316,7 @@ GET Services
 Retrieve accesses from any resource using general request
 ---------------------------------------------------------
 
-    **resource:** /api/v1/general
+    **resource:** /api/v1/general/
 
 Parameters
 ----------
@@ -616,7 +616,7 @@ Parameters
 Query Sample
 ------------
 
-    /api/v1/articles/1575-1813000400005/
+    /api/v1/articles/S1575-1813000400005/
 
     Response sample::
 
@@ -630,7 +630,7 @@ Query Sample
             },
             objects: [
                 {
-                    "code": "1981-67230004", 
+                    "code": "S1981-6723000400005", 
                     "y2011": {
                         "total": 78, 
                         "m01": {
