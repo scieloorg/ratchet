@@ -404,9 +404,9 @@ Query Sample
             ]
         }
 
-------------------------------------------------------------------
+-----------------------------------------------------------------
 Retrieve accesses from a specific journal using journals resource
-------------------------------------------------------------------
+-----------------------------------------------------------------
 
     **resource:** /api/v1/journals/
 
@@ -433,6 +433,204 @@ Query Sample
             objects: [
                 {
                     "code": "1981-6723", 
+                    "y2011": {
+                        "total": 78, 
+                        "m01": {
+                            "d15": 78,
+                            "total": 78
+                        }
+                    }, 
+                    "sci_pdf": {
+                        "y2011": {
+                            "total": 78,
+                            "m01": {
+                                "d15": 78, 
+                                "total": 78
+                            }
+                        }
+                    }
+                }
+            ]
+        }
+
+--------------------------------------
+Retrieve accesses from issues resource
+--------------------------------------
+
+    **resource:** /api/v1/issues/
+
+Parameters
+----------
+
+    No parameters expected
+
+Query Sample
+------------
+
+    /api/v1/issues/
+
+    Response sample::
+
+        {
+            meta: {
+                previous: "/api/v1/journals?offset=0",
+                next: "/api/v1/journals?offset=40",
+                total: 334,
+                limit: 20,
+                offset: 20
+            },
+            objects: [
+                {
+                    "code": "1575-18130004", 
+                    "y2011": {
+                        "total": 78, 
+                        "m01": {
+                            "d15": 78,
+                            "total": 78
+                        }
+                    }, 
+                    "sci_pdf": {
+                        "y2011": {
+                            "total": 78,
+                            "m01": {
+                                "d15": 78, 
+                                "total": 78
+                            }
+                        }
+                    }
+                }
+            ...
+            ]
+        }
+
+-------------------------------------------------------------
+Retrieve accesses from a specific issue using issues resource
+-------------------------------------------------------------
+
+    **resource:** /api/v1/issues/
+
+Parameters
+----------
+
+    No parameters expected
+
+Query Sample
+------------
+
+    /api/v1/issues/1575-18130004/
+
+    Response sample::
+
+        {
+            meta: {
+                previous: null,
+                next: null,
+                total: 1,
+                limit: 20,
+                offset: 0
+            },
+            objects: [
+                {
+                    "code": "1981-67230004", 
+                    "y2011": {
+                        "total": 78, 
+                        "m01": {
+                            "d15": 78,
+                            "total": 78
+                        }
+                    }, 
+                    "sci_pdf": {
+                        "y2011": {
+                            "total": 78,
+                            "m01": {
+                                "d15": 78, 
+                                "total": 78
+                            }
+                        }
+                    }
+                }
+            ]
+        }
+
+----------------------------------------
+Retrieve accesses from articles resource
+----------------------------------------
+
+    **resource:** /api/v1/articles/
+
+Parameters
+----------
+
+    No parameters expected
+
+Query Sample
+------------
+
+    /api/v1/articles/
+
+    Response sample::
+
+        {
+            meta: {
+                previous: "/api/v1/journals?offset=0",
+                next: "/api/v1/journals?offset=40",
+                total: 334,
+                limit: 20,
+                offset: 20
+            },
+            objects: [
+                {
+                    "code": "S1575-1813000400005", 
+                    "y2011": {
+                        "total": 78, 
+                        "m01": {
+                            "d15": 78,
+                            "total": 78
+                        }
+                    }, 
+                    "sci_pdf": {
+                        "y2011": {
+                            "total": 78,
+                            "m01": {
+                                "d15": 78, 
+                                "total": 78
+                            }
+                        }
+                    }
+                }
+            ...
+            ]
+        }
+
+-----------------------------------------------------------------
+Retrieve accesses from a specific article using articles resource
+-----------------------------------------------------------------
+
+    **resource:** /api/v1/articles/
+
+Parameters
+----------
+
+    No parameters expected
+
+Query Sample
+------------
+
+    /api/v1/articles/1575-1813000400005/
+
+    Response sample::
+
+        {
+            meta: {
+                previous: null,
+                next: null,
+                total: 1,
+                limit: 20,
+                offset: 0
+            },
+            objects: [
+                {
+                    "code": "1981-67230004", 
                     "y2011": {
                         "total": 78, 
                         "m01": {
