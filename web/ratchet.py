@@ -47,21 +47,29 @@ REGEX_ARTICLE = re.compile("^S[0-9]{4}-[0-9]{3}[0-9xX][0-2][0-9]{3}[0-9]{4}[0-9]
 REGEX_FBPE = re.compile("^S[0-9]{4}-[0-9]{3}[0-9xX]\([0-9]{2}\)[0-9]{8}$")
 
 
-def get_next(endpoint, total, limit, offset):
+def get_next(endpoint, total, limit, offset, fltr=None):
 
     offset += limit
     if offset >= total:
         return None
 
-    return '/api/v1/%s?offset=%s' % (endpoint, offset)
+    fltrs = ''
+    if fltr:
+        fltrs += '&%s' % '&'.join(set(['='.join([key, value]) for key, value in fltr.items()]))
+
+    return '/api/v1/%s?offset=%s%s' % (endpoint, offset, fltrs)
 
 
-def get_previous(endpoint, total, limit, offset):
+def get_previous(endpoint, total, limit, offset, fltr=None):
     offset -= limit
     if offset < 0:
         return None
 
-    return '/api/v1/%s?offset=%s' % (endpoint, offset)
+    fltrs = ''
+    if fltr:
+        fltrs += '&%s' % '&'.join(set(['='.join([key, value]) for key, value in fltr.items()]))
+
+    return '/api/v1/%s?offset=%s%s' % (endpoint, offset, fltrs)
 
 
 def authenticated(func):
@@ -164,9 +172,8 @@ class GeneralHandler(tornado.web.RequestHandler):
             pass
 
         meta['total'] = self.total
-        meta['params'] = self.query
-        meta['next'] = get_next('general', meta['total'], meta['limit'], int(meta['offset']))
-        meta['previous'] = get_previous('general', meta['total'], meta['limit'], int(meta['offset']))
+        meta['next'] = get_next('general', meta['total'], meta['limit'], int(meta['offset']), self.query)
+        meta['previous'] = get_previous('general', meta['total'], meta['limit'], int(meta['offset']), self.query)
 
         self.write(json.dumps(self.rdata))
         self.finish()
@@ -227,9 +234,13 @@ class GeneralHandler(tornado.web.RequestHandler):
         code = self.get_argument('code', None)
         type_doc = self.get_argument('type', None)
 
-        self.query = {"code": code}
+        self.query = {}
+
         if type_doc:
             self.query = {"type": type_doc}
+
+        if code:
+            self.query = {"code": code}
 
         command = {
             'count': 'accesses',
