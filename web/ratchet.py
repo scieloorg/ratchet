@@ -232,7 +232,6 @@ class GeneralHandler(tornado.web.RequestHandler):
 
     @tornado.web.asynchronous
     @tornado.gen.engine
-    @tornado.web.addslash
     def get(self):
         code = self.get_argument('code', None)
         type_doc = self.get_argument('type', None)
