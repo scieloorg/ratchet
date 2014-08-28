@@ -235,6 +235,7 @@ class GeneralHandler(tornado.web.RequestHandler):
     def get(self):
         code = self.get_argument('code', None)
         type_doc = self.get_argument('type', None)
+        offset = int(self.get_argument('offset', 0))
 
         self.query = {}
 
@@ -255,6 +256,7 @@ class GeneralHandler(tornado.web.RequestHandler):
             self.query,
             {"_id": 0},
             limit=LIMIT,
+            skip=offset,
             sort=[('total', -1)],
             callback=self._on_get_response)
 
