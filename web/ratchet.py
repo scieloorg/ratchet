@@ -7,6 +7,7 @@ import re
 from datetime import date
 from functools import wraps
 
+import pymongo
 from pymongo import Connection
 
 from tornado import (
@@ -107,6 +108,7 @@ class Application(tornado.web.Application):
 
         # Creating Indexes without asyncmongo.
         coll = Connection(options.mongodb_host, options.mongodb_port)[options.mongodb_database]['accesses']
+        coll.ensure_index([('total', pymongo.DESCENDING)])
         coll.ensure_index('code')
         coll.ensure_index('page')
         coll.ensure_index('type')
@@ -249,7 +251,12 @@ class GeneralHandler(tornado.web.RequestHandler):
 
         self.db.command(command, callback=self._on_count_get_response)
 
-        self.db.accesses.find(self.query, {"_id": 0}, limit=LIMIT, callback=self._on_get_response)
+        self.db.accesses.find(
+            self.query,
+            {"_id": 0},
+            limit=LIMIT,
+            sort=[('total', -1)],
+            callback=self._on_get_response)
 
 
 class BulkGeneralHandler(tornado.web.RequestHandler):
