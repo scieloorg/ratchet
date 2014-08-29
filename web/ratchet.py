@@ -154,27 +154,28 @@ class RootHandler(tornado.web.RequestHandler):
 
 class GeneralHandler(tornado.web.RequestHandler):
 
-    rdata = {}
-    total = None
-
     def _on_count_get_response(self, response, error):
         if error:
             raise tornado.web.HTTPError(500)
 
         self.total = response['n']
 
-    def _on_get_response(self, response, error):
+        self.db.accesses.find(
+            self.query,
+            {"_id": 0},
+            limit=LIMIT,
+            skip=self.offset,
+            sort=[('total', -1)],
+            callback=self._on_query_get_response)
+
+    def _on_query_get_response(self, response, error):
         if error:
             raise tornado.web.HTTPError(500)
 
         meta = self.rdata.setdefault('meta', {})
         meta['limit'] = LIMIT
-        meta['offset'] = self.get_argument('offset', 0)
+        meta['offset'] = self.offset
         self.rdata['objects'] = response
-
-        while not self.total:
-            pass
-
         meta['total'] = self.total
         meta['next'] = get_next('general', meta['total'], meta['limit'], int(meta['offset']), self.query)
         meta['previous'] = get_previous('general', meta['total'], meta['limit'], int(meta['offset']), self.query)
@@ -235,7 +236,10 @@ class GeneralHandler(tornado.web.RequestHandler):
     def get(self):
         code = self.get_argument('code', None)
         type_doc = self.get_argument('type', None)
-        offset = int(self.get_argument('offset', 0))
+        self.offset = int(self.get_argument('offset', 0))
+
+        self.rdata = {}
+        self.total = None
 
         self.query = {}
 
@@ -251,14 +255,6 @@ class GeneralHandler(tornado.web.RequestHandler):
         }
 
         self.db.command(command, callback=self._on_count_get_response)
-
-        self.db.accesses.find(
-            self.query,
-            {"_id": 0},
-            limit=LIMIT,
-            skip=offset,
-            sort=[('total', -1)],
-            callback=self._on_get_response)
 
 
 class BulkGeneralHandler(tornado.web.RequestHandler):
@@ -321,31 +317,32 @@ class EndpointsHandler(tornado.web.RequestHandler):
 
 class JournalHandler(tornado.web.RequestHandler):
 
-    rdata = {}
-    total = None
-
     def _on_count_get_response(self, response, error):
         if error:
             raise tornado.web.HTTPError(500)
 
         self.total = response['n']
 
-    def _on_get_response(self, response, error):
+        self.db.accesses.find(
+            self.query,
+            {"_id": 0},
+            limit=LIMIT,
+            skip=self.offset,
+            sort=[('total', -1)],
+            callback=self._on_query_get_response
+        )
+
+    def _on_query_get_response(self, response, error):
         if error:
             raise tornado.web.HTTPError(500)
 
         meta = self.rdata.setdefault('meta', {})
         meta['limit'] = LIMIT
-        meta['offset'] = self.get_argument('offset', 0)
+        meta['offset'] = self.offset
         self.rdata['objects'] = response
-
-        while not self.total:
-            pass
-
         meta['total'] = self.total
         meta['next'] = get_next('journals', meta['total'], meta['limit'], int(meta['offset']))
         meta['previous'] = get_previous('journals', meta['total'], meta['limit'], int(meta['offset']))
-
         self.write(json.dumps(self.rdata))
         self.finish()
 
@@ -358,62 +355,55 @@ class JournalHandler(tornado.web.RequestHandler):
     @tornado.gen.engine
     @tornado.web.addslash
     def get(self, code=None):
-        offset = int(self.get_argument('offset', 0))
+        self.offset = int(self.get_argument('offset', 0))
 
-        query = {'type': 'journal'}
+        self.rdata = {}
+        self.total = None
+        self.query = {'type': 'journal'}
 
         if code:
             if REGEX_ISSN.search(code):
-                query['code'] = code
+                self.query['code'] = code
             else:
                 raise tornado.web.HTTPError(400)
 
         command = {
             'count': 'accesses',
-            'query': query
+            'query': self.query
         }
 
         self.db.command(command, callback=self._on_count_get_response)
-
-        self.db.accesses.find(
-            query,
-            {"_id": 0},
-            limit=LIMIT,
-            skip=offset,
-            sort=[('total', -1)],
-            callback=self._on_get_response
-        )
 
 
 class IssueHandler(tornado.web.RequestHandler):
 
-    rdata = {}
-    total = None
-
     def _on_count_get_response(self, response, error):
         if error:
             raise tornado.web.HTTPError(500)
 
         self.total = response['n']
 
-    def _on_get_response(self, response, error):
+        self.db.accesses.find(
+            self.query,
+            {"_id": 0},
+            limit=LIMIT,
+            skip=self.offset,
+            sort=[('total', -1)],
+            callback=self._on_query_get_response
+        )
+
+    def _on_query_get_response(self, response, error):
         if error:
             raise tornado.web.HTTPError(500)
 
         meta = self.rdata.setdefault('meta', {})
         meta['limit'] = LIMIT
-        meta['offset'] = self.get_argument('offset', 0)
+        meta['offset'] = self.offset
         self.rdata['objects'] = response
-
-        while not self.total:
-            pass
-
         meta['total'] = self.total
         meta['next'] = get_next('journals', meta['total'], meta['limit'], int(meta['offset']))
         meta['previous'] = get_previous('journals', meta['total'], meta['limit'], int(meta['offset']))
-
         self.write(json.dumps(self.rdata))
-
         self.finish()
 
     @property
@@ -425,56 +415,52 @@ class IssueHandler(tornado.web.RequestHandler):
     @tornado.gen.engine
     @tornado.web.addslash
     def get(self, code=None):
-        offset = int(self.get_argument('offset', 0))
+        self.offset = int(self.get_argument('offset', 0))
 
-        query = {'type': 'toc'}
+        self.rdata = {}
+        self.total = None
+
+        self.query = {'type': 'toc'}
 
         if code:
             if REGEX_ISSUE.search(code):
-                query['code'] = code
+                self.query['code'] = code
             else:
                 raise tornado.web.HTTPError(400)
 
         command = {
             'count': 'accesses',
-            'query': query
+            'query': self.query
         }
 
         self.db.command(command, callback=self._on_count_get_response)
-
-        self.db.accesses.find(
-            query,
-            {"_id": 0},
-            limit=LIMIT,
-            skip=offset,
-            sort=[('total', -1)],
-            callback=self._on_get_response
-        )
 
 
 class ArticleHandler(tornado.web.RequestHandler):
 
-    rdata = {}
-    total = None
-
     def _on_count_get_response(self, response, error):
         if error:
             raise tornado.web.HTTPError(500)
 
         self.total = response['n']
 
-    def _on_get_response(self, response, error):
+        self.db.accesses.find(
+            self.query,
+            {"_id": 0},
+            limit=LIMIT,
+            skip=self.offset,
+            sort=[('total', -1)],
+            callback=self._on_query_get_response
+        )
+
+    def _on_query_get_response(self, response, error):
         if error:
             raise tornado.web.HTTPError(500)
 
         meta = self.rdata.setdefault('meta', {})
         meta['limit'] = LIMIT
-        meta['offset'] = self.get_argument('offset', 0)
+        meta['offset'] = self.offset
         self.rdata['objects'] = response
-
-        while not self.total:
-            pass
-
         meta['total'] = self.total
         meta['next'] = get_next('journals', meta['total'], meta['limit'], int(meta['offset']))
         meta['previous'] = get_previous('journals', meta['total'], meta['limit'], int(meta['offset']))
@@ -492,32 +478,25 @@ class ArticleHandler(tornado.web.RequestHandler):
     @tornado.gen.engine
     @tornado.web.addslash
     def get(self, code=None):
-        offset = int(self.get_argument('offset', 0))
+        self.offset = int(self.get_argument('offset', 0))
 
-        query = {'type': 'article'}
+        self.rdata = {}
+        self.total = None
+
+        self.query = {'type': 'article'}
 
         if code:
             if REGEX_ARTICLE.search(code) or REGEX_FBPE.search(code):
-                query['code'] = code
+                self.query['code'] = code
             else:
                 raise tornado.web.HTTPError(400)
 
         command = {
             'count': 'accesses',
-            'query': query
+            'query': self.query
         }
 
         self.db.command(command, callback=self._on_count_get_response)
-
-        self.db.accesses.find(
-            query,
-            {"_id": 0},
-            limit=LIMIT,
-            skip=offset,
-            sort=[('total', -1)],
-            callback=self._on_get_response
-        )
-
 
 if __name__ == '__main__':
     tornado.options.parse_command_line()
