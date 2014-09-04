@@ -272,18 +272,23 @@ class BulkGeneralHandler(tornado.web.RequestHandler):
 
         code = data['code']
 
+        include_set = {}
+
         if 'journal' in data:
-            journal = data['journal']
-            del data['journal']
+            include_set['journal'] = data['journal']
+            del(data['journal'])
 
         if 'issue' in data:
-            issue = data['issue']
-            del data['issue']
+            include_set['issue'] = data['issue']
+            del(data['issue'])
 
-        include_set = {
-                        'journal': journal,
-                        'issue': issue,
-                      }
+        if 'page' in data:
+            include_set['page'] = data['page']
+            del(data['page'])
+
+        if 'type' in data:
+            include_set['type'] = data['type']
+            del(data['type'])
 
         del data['code']
 
