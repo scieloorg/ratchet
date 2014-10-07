@@ -323,11 +323,13 @@ class EndpointsHandler(tornado.web.RequestHandler):
 class JournalHandler(tornado.web.RequestHandler):
 
     def _on_count_get_response(self, response, error):
+
         if error:
             raise tornado.web.HTTPError(500)
 
         self.total = response['n']
 
+        import pdb; pdb.set_trace()
         self.db.accesses.find(
             self.query,
             {"_id": 0},
