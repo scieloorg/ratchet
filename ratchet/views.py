@@ -9,7 +9,7 @@ from pyramid.response import Response
 from pyramid import httpexceptions
 
 LIMIT = 20
-ALLOWED_TYPE_DOCS = ['article', 'toc', 'journal', 'website']
+ALLOWED_TYPE_DOCS = ['article', 'issue', 'journal', 'website']
 REGEX_ISSN = re.compile("^[0-9]{4}-[0-9]{3}[0-9xX]$")
 REGEX_ISSUE = re.compile("^[0-9]{4}-[0-9]{3}[0-9xX][0-2][0-9]{3}[0-9]{4}$")
 REGEX_ARTICLE = re.compile("^S[0-9]{4}-[0-9]{3}[0-9xX][0-2][0-9]{3}[0-9]{4}[0-9]{5}$")
@@ -128,6 +128,7 @@ def general_post(request):
     page = request.POST.get('page', None)
     type_doc = request.POST.get('type', None)
     access_date = request.POST.get('access_date', None)
+    query = {}
 
     if type_doc:
         if type_doc in ALLOWED_TYPE_DOCS:
@@ -220,12 +221,14 @@ def general_bulk(request):
 @view_config(route_name='journals', request_method='GET', renderer='json')
 def journals(request):
     offset = int(request.GET.get('offset', 0))
-
     rdata = {}
     total = None
     query = {'type': 'journal'}
 
     total = request.db.find(query).count()
+
+    if offset > total or offset < 0:
+        raise httpexceptions.HTTPBadRequest('offset exceeded the range [0, %s]' % str(total))
 
     meta = rdata.setdefault('meta', {})
     meta['limit'] = LIMIT
@@ -250,12 +253,104 @@ def journals(request):
 def journal(request):
     code = request.matchdict.get('code', None)
 
-    query = {}
+    query = {'type': 'journal'}
 
     if REGEX_ISSN.search(code):
         query['code'] = code
     else:
-        raise httpexceptions.HTTPBadRequest('Invalid ISSN %s' % code)
+        raise httpexceptions.HTTPBadRequest('Invalid ISSN CODE %s' % code)
+
+    record = request.db.find_one(query, {"_id": 0})
+
+    return record
+
+@view_config(route_name='issues', request_method='GET', renderer='json')
+def issues(request):
+    offset = int(request.GET.get('offset', 0))
+    rdata = {}
+    total = None
+    query = {'type': 'issue'}
+
+    total = request.db.find(query).count()
+
+    if offset > total or offset < 0:
+        raise httpexceptions.HTTPBadRequest('offset exceeded the range [0, %s]' % str(total))
+
+    meta = rdata.setdefault('meta', {})
+    meta['limit'] = LIMIT
+    meta['offset'] = offset
+    meta['total'] = total
+    meta['next'] = get_next('journals', meta['total'], meta['limit'], int(meta['offset']))
+    meta['previous'] = get_previous('journals', meta['total'], meta['limit'], int(meta['offset']))
+
+    records = request.db.find(
+        query,
+        {"_id": 0},
+        limit=LIMIT,
+        skip=offset,
+        sort=[('total', -1)]
+    )
+
+    rdata['objects'] = [i for i in records]
+
+    return rdata
+
+@view_config(route_name='issue', request_method='GET', renderer='json')
+def issue(request):
+    code = request.matchdict.get('code', None)
+
+    query = {'type': 'issue'}
+
+    if REGEX_ISSUE.search(code):
+        query['code'] = code
+    else:
+        raise httpexceptions.HTTPBadRequest('Invalid ISSUE CODE %s' % code)
+
+    record = request.db.find_one(query, {"_id": 0})
+
+    return record
+
+@view_config(route_name='articles', request_method='GET', renderer='json')
+def articles(request):
+    offset = int(request.GET.get('offset', 0))
+    rdata = {}
+    total = None
+    query = {'type': 'article'}
+
+    total = request.db.find(query).count()
+
+    if offset > total or offset < 0:
+        raise httpexceptions.HTTPBadRequest('offset exceeded the range [0, %s]' % str(total))
+
+    meta = rdata.setdefault('meta', {})
+    meta['limit'] = LIMIT
+    meta['offset'] = offset
+    meta['total'] = total
+    meta['next'] = get_next('journals', meta['total'], meta['limit'], int(meta['offset']))
+    meta['previous'] = get_previous('journals', meta['total'], meta['limit'], int(meta['offset']))
+
+    records = request.db.find(
+        query,
+        {"_id": 0},
+        limit=LIMIT,
+        skip=offset,
+        sort=[('total', -1)]
+    )
+
+    rdata['objects'] = [i for i in records]
+
+    return rdata
+
+@view_config(route_name='article', request_method='GET', renderer='json')
+def article(request):
+    code = request.matchdict.get('code', None)
+
+    query = {'type': 'article'}
+
+    if REGEX_ARTICLE.search(code) or REGEX_FBPE.search(code):
+        query['code'] = code
+    else:
+        raise httpexceptions.HTTPBadRequest('Invalid ARTICLE CODE %s' % code)
 
     record = request.db.find_one(query, {"_id": 0})
 

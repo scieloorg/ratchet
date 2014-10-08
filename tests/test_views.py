@@ -34,15 +34,313 @@ class ViewTests(unittest.TestCase):
         self.assertEqual(response['issues']['list_endpoint'], '/api/v1/issues/')
         self.assertEqual(response['general']['list_endpoint'], '/api/v1/general/')
 
-    def test_journal(self):
-        from ratchet.views import journal, general_post
 
-        post_data = {'code': '0104-7760', 'page': 'journal', 'access_date': '2014-12-25'}
+    def test_articles(self):
+        from ratchet.views import articles, general_post
+
+        post_data = {'code': 'S0104-77602014000100002', 'page': 'html', 'type': 'article', 'access_date': '2014-12-25'}
 
         request = testing.DummyRequest(post=post_data, db=self.collection)
 
-        with self.assertRaises(httpexceptions.HTTPCreated):
+        try:
             general_post(request)
+        except:
+            pass
+
+        post_data = {'code': 'S0100-07602014000100002', 'page': 'abstract', 'type': 'article', 'access_date': '2014-12-25'}
+
+        request = testing.DummyRequest(post=post_data, db=self.collection)
+
+        try:
+            general_post(request)
+        except:
+            pass
+
+        request = testing.DummyRequest(db=self.collection)
+
+        response = articles(request)        
+
+        self.assertEqual(len(response['objects']), 2)
+
+    def test_articles_offset_exceeded_lt(self):
+        from ratchet.views import articles, general_post
+
+        post_data = {'code': 'S0104-77602014000100002', 'page': 'html', 'type': 'article', 'access_date': '2014-12-25'}
+
+        request = testing.DummyRequest(post=post_data, db=self.collection)
+
+        try:
+            general_post(request)
+        except:
+            pass
+
+        post_data = {'code': 'S0100-07602014000100002', 'page': 'abstract', 'type': 'article', 'access_date': '2014-12-25'}
+
+        request = testing.DummyRequest(post=post_data, db=self.collection)
+
+        try:
+            general_post(request)
+        except:
+            pass
+
+        request = testing.DummyRequest(params={'offset': -1}, db=self.collection)
+    
+        with self.assertRaises(httpexceptions.HTTPBadRequest):
+            response = articles(request)        
+
+    def test_articles_offset_exceeded_gt(self):
+        from ratchet.views import articles, general_post
+
+        post_data = {'code': 'S0104-77602014000100002', 'page': 'html', 'type': 'article', 'access_date': '2014-12-25'}
+
+        request = testing.DummyRequest(post=post_data, db=self.collection)
+
+        try:
+            general_post(request)
+        except:
+            pass
+
+        post_data = {'code': 'S0100-07602014000100002', 'page': 'abstract', 'type': 'article', 'access_date': '2014-12-25'}
+
+        request = testing.DummyRequest(post=post_data, db=self.collection)
+
+        try:
+            general_post(request)
+        except:
+            pass
+
+        request = testing.DummyRequest(params={'offset': 3}, db=self.collection)
+    
+        with self.assertRaises(httpexceptions.HTTPBadRequest):
+            response = articles(request) 
+
+    def test_article(self):
+        from ratchet.views import article, general_post
+
+        post_data = {'code': 'S0104-77602014000100002', 'page': 'abstract', 'type': 'article', 'access_date': '2014-12-25'}
+
+        request = testing.DummyRequest(post=post_data, db=self.collection)
+
+        try:
+            general_post(request)
+        except:
+            pass
+
+        request = testing.DummyRequest(db=self.collection)
+        request.matchdict.update(dict(code='S0104-77602014000100002'))
+
+        response = article(request)        
+
+        self.assertEqual(response['code'], 'S0104-77602014000100002')
+        self.assertEqual(response['total'], 1)
+
+    def test_article_invalid_issn(self):
+        from ratchet.views import article
+
+        request = testing.DummyRequest(db=self.collection)
+        request.matchdict.update(dict(code='xxx'))
+
+        with self.assertRaises(httpexceptions.HTTPBadRequest):
+            article(request)
+
+    def test_issues(self):
+        from ratchet.views import issues, general_post
+
+        post_data = {'code': '0104-776020140001', 'page': 'toc', 'type': 'issue', 'access_date': '2014-12-25'}
+
+        request = testing.DummyRequest(post=post_data, db=self.collection)
+
+        try:
+            general_post(request)
+        except:
+            pass
+
+        post_data = {'code': '0100-076020140001', 'page': 'toc', 'type': 'issue', 'access_date': '2014-12-25'}
+
+        request = testing.DummyRequest(post=post_data, db=self.collection)
+
+        try:
+            general_post(request)
+        except:
+            pass
+
+        request = testing.DummyRequest(db=self.collection)
+
+        response = issues(request)        
+
+        self.assertEqual(len(response['objects']), 2)
+
+    def test_issues_offset_exceeded_lt(self):
+        from ratchet.views import issues, general_post
+
+        post_data = {'code': '0104-776020140001', 'page': 'toc', 'type': 'issue', 'access_date': '2014-12-25'}
+
+        request = testing.DummyRequest(post=post_data, db=self.collection)
+
+        try:
+            general_post(request)
+        except:
+            pass
+
+        post_data = {'code': '0100-076020140001', 'page': 'toc', 'type': 'issue', 'access_date': '2014-12-25'}
+
+        request = testing.DummyRequest(post=post_data, db=self.collection)
+
+        try:
+            general_post(request)
+        except:
+            pass
+
+        request = testing.DummyRequest(params={'offset': -1}, db=self.collection)
+    
+        with self.assertRaises(httpexceptions.HTTPBadRequest):
+            response = issues(request)        
+
+    def test_issues_offset_exceeded_gt(self):
+        from ratchet.views import issues, general_post
+
+        post_data = {'code': '0104-776020140001', 'page': 'toc', 'type': 'issue', 'access_date': '2014-12-25'}
+
+        request = testing.DummyRequest(post=post_data, db=self.collection)
+
+        try:
+            general_post(request)
+        except:
+            pass
+
+        post_data = {'code': '0100-076020140001', 'page': 'toc', 'type': 'issue', 'access_date': '2014-12-25'}
+
+        request = testing.DummyRequest(post=post_data, db=self.collection)
+
+        try:
+            general_post(request)
+        except:
+            pass
+
+        request = testing.DummyRequest(params={'offset': 3}, db=self.collection)
+    
+        with self.assertRaises(httpexceptions.HTTPBadRequest):
+            response = issues(request) 
+
+    def test_issue(self):
+        from ratchet.views import issue, general_post
+
+        post_data = {'code': '0104-776020140001', 'page': 'toc', 'type': 'issue', 'access_date': '2014-12-25'}
+
+        request = testing.DummyRequest(post=post_data, db=self.collection)
+
+        try:
+            general_post(request)
+        except:
+            pass
+
+        request = testing.DummyRequest(db=self.collection)
+        request.matchdict.update(dict(code='0104-776020140001'))
+
+        response = issue(request)        
+
+        self.assertEqual(response['code'], '0104-776020140001')
+        self.assertEqual(response['total'], 1)
+
+    def test_issue_invalid_issn(self):
+        from ratchet.views import issue
+
+        request = testing.DummyRequest(db=self.collection)
+        request.matchdict.update(dict(code='xxx'))
+
+        with self.assertRaises(httpexceptions.HTTPBadRequest):
+            issue(request)
+
+    def test_journals(self):
+        from ratchet.views import journals, general_post
+
+        post_data = {'code': '0104-7760', 'page': 'journal', 'type': 'journal', 'access_date': '2014-12-25'}
+
+        request = testing.DummyRequest(post=post_data, db=self.collection)
+
+        try:
+            general_post(request)
+        except:
+            pass
+
+        post_data = {'code': '0100-0760', 'page': 'journal', 'type': 'journal', 'access_date': '2014-12-25'}
+
+        request = testing.DummyRequest(post=post_data, db=self.collection)
+
+        try:
+            general_post(request)
+        except:
+            pass
+
+        request = testing.DummyRequest(db=self.collection)
+
+        response = journals(request)        
+
+        self.assertEqual(len(response['objects']), 2)
+
+    def test_journals_offset_exceeded_lt(self):
+        from ratchet.views import journals, general_post
+
+        post_data = {'code': '0104-7760', 'page': 'journal', 'type': 'journal', 'access_date': '2014-12-25'}
+
+        request = testing.DummyRequest(post=post_data, db=self.collection)
+
+        try:
+            general_post(request)
+        except:
+            pass
+
+        post_data = {'code': '0100-0760', 'page': 'journal', 'type': 'journal', 'access_date': '2014-12-25'}
+
+        request = testing.DummyRequest(post=post_data, db=self.collection)
+
+        try:
+            general_post(request)
+        except:
+            pass
+
+        request = testing.DummyRequest(params={'offset': -1}, db=self.collection)
+    
+        with self.assertRaises(httpexceptions.HTTPBadRequest):
+            response = journals(request)        
+
+    def test_journals_offset_exceeded_gt(self):
+        from ratchet.views import journals, general_post
+
+        post_data = {'code': '0104-7760', 'page': 'journal', 'type': 'journal', 'access_date': '2014-12-25'}
+
+        request = testing.DummyRequest(post=post_data, db=self.collection)
+
+        try:
+            general_post(request)
+        except:
+            pass
+
+        post_data = {'code': '0100-0760', 'page': 'journal', 'type': 'journal', 'access_date': '2014-12-25'}
+
+        request = testing.DummyRequest(post=post_data, db=self.collection)
+
+        try:
+            general_post(request)
+        except:
+            pass
+
+        request = testing.DummyRequest(params={'offset': 3}, db=self.collection)
+    
+        with self.assertRaises(httpexceptions.HTTPBadRequest):
+            response = journals(request) 
+
+    def test_journal(self):
+        from ratchet.views import journal, general_post
+
+        post_data = {'code': '0104-7760', 'page': 'journal', 'type': 'journal', 'access_date': '2014-12-25'}
+
+        request = testing.DummyRequest(post=post_data, db=self.collection)
+
+        try:
+            general_post(request)
+        except:
+            pass
 
         request = testing.DummyRequest(db=self.collection)
         request.matchdict.update(dict(code='0104-7760'))
@@ -205,8 +503,10 @@ class ViewTests(unittest.TestCase):
 
         request = testing.DummyRequest(post=post_data, db=self.collection)
 
-        with self.assertRaises(httpexceptions.HTTPCreated):
+        try:
             general_post(request)
+        except:
+            pass
 
         day = 'd%02d' % datetime.date.today().day
         month = 'm%02d' % datetime.date.today().month

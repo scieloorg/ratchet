@@ -32,6 +32,10 @@ def main(global_config, **settings):
     config.add_route('general_bulk', '/api/v1/general/bulk/')
     config.add_route('journals', '/api/v1/journals/')
     config.add_route('journal', '/api/v1/journals/{code}/')
+    config.add_route('issues', '/api/v1/issues/')
+    config.add_route('issue', '/api/v1/issues/{code}/')
+    config.add_route('articles', '/api/v1/articles/')
+    config.add_route('article', '/api/v1/articles/{code}/')
     config.add_request_method(add_db, 'db', reify=True)
     config.scan()
 
