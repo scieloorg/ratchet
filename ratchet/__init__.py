@@ -4,6 +4,7 @@ import pymongo
 
 from pyramid.config import Configurator
 
+from ratchet import controller
 
 def main(global_config, **settings):
     """ This function returns a Pyramid WSGI application.
@@ -12,17 +13,17 @@ def main(global_config, **settings):
 
     db_url = urlparse.urlparse(settings['mongo_uri'])
 
-    config.registry.db = pymongo.Connection(
-        host=db_url.hostname,
-        port=db_url.port
-    )
+    def add_controller(request):
+        config.registry.db = pymongo.Connection(
+            host=db_url.hostname,
+            port=db_url.port
+        )
 
-    db = config.registry.db[db_url.path[1:]]
-    if db_url.username and db_url.password:
-        db.authenticate(db_url.username, db_url.password)
+        db = config.registry.db[db_url.path[1:]]
+        if db_url.username and db_url.password:
+            db.authenticate(db_url.username, db_url.password)
 
-    def add_db(request):
-        return db['accesses']
+        return controller.Ratchet(db['accesses'])
 
     config.include('pyramid_chameleon')
     config.add_static_view('static', 'static', cache_max_age=3600)
@@ -36,7 +37,7 @@ def main(global_config, **settings):
     config.add_route('issue', '/api/v1/issues/{code}/')
     config.add_route('articles', '/api/v1/articles/')
     config.add_route('article', '/api/v1/articles/{code}/')
-    config.add_request_method(add_db, 'db', reify=True)
+    config.add_request_method(add_controller, 'controller', reify=True)
     config.scan()
 
     return config.make_wsgi_app()
