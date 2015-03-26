@@ -137,7 +137,6 @@ if __name__ == '__main__':
     parser.add_argument(
         '--pidfile',
         '-p',
-        default='/var/run/ratchet_thrift.pid',
         help='Absolute path to the pid file (daemon only)'
     )
 
@@ -169,9 +168,7 @@ if __name__ == '__main__':
         if args.pidfile:
             daemon_options['pidfile'] = lockfile.FileLock(args.pidfile)
 
-        context = daemon.DaemonContext(**daemon_options)
-
-        with context:
+        with daemon.DaemonContext(**daemon_options):
             run_server(args.host, args.port, Dispatcher(ratchet_controller))
 
     else:
