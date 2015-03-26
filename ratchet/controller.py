@@ -1,4 +1,6 @@
 # coding: utf-8
+import urlparse
+import pymongo
 
 LIMIT = 20
 
@@ -29,9 +31,15 @@ def get_previous_endpoint(endpoint, total, limit, offset, fltr=None):
 
 class Ratchet(object):
 
-    def __init__(self, database):
+    def __init__(self, mongo_uri):
 
-        self._db = database
+        db_url = urlparse.urlparse(mongo_uri)
+        conn = pymongo.MongoClient(host=db_url.hostname, port=db_url.port)
+        db = conn[db_url.path[1:]]
+        if db_url.username and db_url.password:
+            db.authenticate(db_url.username, db_url.password)
+
+        self._db = db['accesses']
 
 
     def general(self, type_doc=None, collection=None, code=None, limit=LIMIT, offset=0):
@@ -49,7 +57,7 @@ class Ratchet(object):
             query['code'] = code
 
         if collection:
-            query['code'] = collection
+            query['collection'] = collection
 
         data = {}
 
@@ -61,6 +69,7 @@ class Ratchet(object):
         meta['total'] = total
         meta['next'] = get_next_endpoint('general', meta['total'], limit, int(meta['offset']), query)
         meta['previous'] = get_previous_endpoint('general', meta['total'], limit, int(meta['offset']), query)
+
 
         records = self._db.find(
             query,

@@ -1,7 +1,5 @@
 import urlparse
 
-import pymongo
-
 from pyramid.config import Configurator
 
 from ratchet import controller
@@ -11,19 +9,8 @@ def main(global_config, **settings):
     """
     config = Configurator(settings=settings)
 
-    db_url = urlparse.urlparse(settings['mongo_uri'])
-
     def add_controller(request):
-        config.registry.db = pymongo.Connection(
-            host=db_url.hostname,
-            port=db_url.port
-        )
-
-        db = config.registry.db[db_url.path[1:]]
-        if db_url.username and db_url.password:
-            db.authenticate(db_url.username, db_url.password)
-
-        return controller.Ratchet(db['accesses'])
+        return controller.Ratchet(settings['mongo_uri'])
 
     config.include('pyramid_chameleon')
     config.add_static_view('static', 'static', cache_max_age=3600)
