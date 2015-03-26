@@ -161,15 +161,16 @@ if __name__ == '__main__':
 
     logger = _config_logging(args.logging_level, args.logging_file)
 
-    ratchet_controller = Ratchet(confs['mongo_uri'])
-
     if args.daemon:
         daemon_options = {'umask': 0o002}
         if args.pidfile:
             daemon_options['pidfile'] = lockfile.FileLock(args.pidfile)
 
-        with daemon.DaemonContext(**daemon_options):
+        context = daemon.DaemonContext(**daemon_options)
+        with context:
+            ratchet_controller = Ratchet(confs['mongo_uri'])
             run_server(args.host, args.port, Dispatcher(ratchet_controller))
 
     else:
+        ratchet_controller = Ratchet(confs['mongo_uri'])
         run_server(args.host, args.port, Dispatcher(ratchet_controller))
