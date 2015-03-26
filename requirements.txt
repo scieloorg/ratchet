@@ -1,3 +1,6 @@
 gunicorn_thrift
+thrift
 cython
 thriftpy
+python-daemon
+lockfile

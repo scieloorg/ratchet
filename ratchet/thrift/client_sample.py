@@ -14,6 +14,6 @@ if __name__ == "__main__":
     client = make_client(
         ratchet_thrift.RatchetStats,
         '127.0.0.1',
-        11631
+        11630
     )
     print json.loads(client.general('scl'))
