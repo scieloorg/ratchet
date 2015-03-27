@@ -21,6 +21,7 @@ logger = logging.getLogger(__name__)
 
 __verion__ = 0.1
 
+LOG_FMT = r"%(asctime)s %(name)s[%(process)d] [%(levelname)s] %(message)s"
 BIND_IP = '127.0.0.1'
 BIND_PORT = '11630'
 PROTOCOL = TCyBinaryProtocolFactory()
@@ -28,33 +29,6 @@ TRANSPORT = TCyBufferedTransportFactory()
 
 
 ratchet_thrift = thriftpy.load(os.path.join(os.path.dirname(__file__))+'/ratchet.thrift')
-
-def _config_logging(logging_level='INFO', logging_file=None):
-
-    allowed_levels = {
-        'DEBUG': logging.DEBUG,
-        'INFO': logging.INFO,
-        'WARNING': logging.WARNING,
-        'ERROR': logging.ERROR,
-        'CRITICAL': logging.CRITICAL
-    }
-
-    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-
-    logger = logging.getLogger('ratchet_thrift')
-    logger.setLevel(allowed_levels.get(logging_level, 'INFO'))
-
-    if logging_file:
-        hl = logging.FileHandler(logging_file, mode='a')
-    else:
-        hl = logging.StreamHandler()
-
-    hl.setFormatter(formatter)
-    hl.setLevel(allowed_levels.get(logging_level, 'INFO'))
-
-    logger.addHandler(hl)
-
-    return logger
 
 class Dispatcher(object):
 
@@ -159,8 +133,6 @@ if __name__ == '__main__':
 
     confs = loadconfs(open(args.config_file))
 
-    logger = _config_logging(args.logging_level, args.logging_file)
-
     if args.daemon:
         daemon_options = {'umask': 0o002}
         if args.pidfile:
@@ -168,9 +140,13 @@ if __name__ == '__main__':
 
         context = daemon.DaemonContext(**daemon_options)
         with context:
+            logging.basicConfig(format=LOG_FMT,
+                level=getattr(logging, args.logging_level), filename=args.logging_file)
             ratchet_controller = Ratchet(confs['mongo_uri'])
             run_server(args.host, args.port, Dispatcher(ratchet_controller))
 
     else:
+        logging.basicConfig(format=LOG_FMT,
+            level=getattr(logging, args.logging_level), **logging_opt_conf)
         ratchet_controller = Ratchet(confs['mongo_uri'])
         run_server(args.host, args.port, Dispatcher(ratchet_controller))
