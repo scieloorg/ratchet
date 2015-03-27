@@ -133,6 +133,10 @@ if __name__ == '__main__':
 
     confs = loadconfs(open(args.config_file))
 
+    logging_opt_conf = {}
+    if args.logging_file:
+        logging_opt_conf['filename'] = args.logging_file
+
     if args.daemon:
         daemon_options = {'umask': 0o002}
         if args.pidfile:
@@ -141,7 +145,7 @@ if __name__ == '__main__':
         context = daemon.DaemonContext(**daemon_options)
         with context:
             logging.basicConfig(format=LOG_FMT,
-                level=getattr(logging, args.logging_level), filename=args.logging_file)
+                level=getattr(logging, args.logging_level), **logging_opt_conf)
             ratchet_controller = Ratchet(confs['mongo_uri'])
             run_server(args.host, args.port, Dispatcher(ratchet_controller))
 
