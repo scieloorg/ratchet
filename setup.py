@@ -9,17 +9,16 @@ with open(os.path.join(here, 'CHANGES.txt')) as f:
     CHANGES = f.read()
 
 requires = [
-    'pyramid',
-    'pyramid_chameleon',
-    'pyramid_debugtoolbar',
-    'waitress',
-    'pymongo',
+    'pyramid>=1.5.1',
+    'pymongo>=2.7.2',
+    'thriftpy>=0.2.0',
+    'cython>=0.22'
     ]
 
 tests_requires = requires+[]
 
 setup(name='ratchet',
-      version='0.0',
+      version='1.0.1',
       description='ratchet',
       long_description=README + '\n\n' + CHANGES,
       classifiers=[
@@ -42,5 +41,7 @@ setup(name='ratchet',
       entry_points="""\
       [paste.app_factory]
       main = ratchet:main
+      [console_scripts]
+      ratchet_thriftserver = ratchet.thrift.server:main
       """,
-      )
+)
