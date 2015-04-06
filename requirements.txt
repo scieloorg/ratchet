@@ -2,4 +2,4 @@ cython==0.22
 pyramid==1.5.1
 pymongo==2.7.2
 thriftpy==0.2.0
--e git+https://github.com/scieloorg/ratchet@1.0.1#egg=ratchet
+-e git+https://github.com/scieloorg/ratchet@2.0.1#egg=ratchet

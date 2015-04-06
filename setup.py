@@ -18,7 +18,7 @@ requires = [
 tests_requires = requires+[]
 
 setup(name='ratchet',
-      version='1.0.1',
+      version='2.0.1',
       description='ratchet',
       long_description=README + '\n\n' + CHANGES,
       classifiers=[
