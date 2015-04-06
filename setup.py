@@ -10,15 +10,16 @@ with open(os.path.join(here, 'CHANGES.txt')) as f:
 
 requires = [
     'pyramid>=1.5.1',
+    'pyramid-chameleon>=0.3',
     'pymongo>=2.7.2',
     'thriftpy>=0.2.0',
-    'cython>=0.22'
+    'cython>=0.22',
     ]
 
 tests_requires = requires+[]
 
 setup(name='ratchet',
-      version='2.0.1',
+      version='2.0.2',
       description='ratchet',
       long_description=README + '\n\n' + CHANGES,
       classifiers=[
