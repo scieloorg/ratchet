@@ -5,4 +5,4 @@ pymongo==2.7.2
 thriftpy==0.2.0
 chaussette==1.2
 gevent==1.0.1
--e git+https://github.com/scieloorg/ratchet@2.0.2#egg=ratchet
+-e git+https://github.com/scieloorg/ratchet@2.0.3#egg=ratchet

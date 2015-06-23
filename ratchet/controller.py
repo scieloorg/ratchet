@@ -213,8 +213,8 @@ class Ratchet(object):
         meta['limit'] = limit
         meta['offset'] = offset
         meta['total'] = total
-        meta['next'] = get_next_endpoint('journals', meta['total'], limit, int(meta['offset']))
-        meta['previous'] = get_previous_endpoint('journals', meta['total'], limit, int(meta['offset']))
+        meta['next'] = get_next_endpoint('issues', meta['total'], limit, int(meta['offset']))
+        meta['previous'] = get_previous_endpoint('issues', meta['total'], limit, int(meta['offset']))
 
         records = self._db.find(
             query,
@@ -250,8 +250,8 @@ class Ratchet(object):
         meta['limit'] = limit
         meta['offset'] = offset
         meta['total'] = total
-        meta['next'] = get_next_endpoint('journals', meta['total'], limit, int(meta['offset']))
-        meta['previous'] = get_previous_endpoint('journals', meta['total'], limit, int(meta['offset']))
+        meta['next'] = get_next_endpoint('articles', meta['total'], limit, int(meta['offset']))
+        meta['previous'] = get_previous_endpoint('articles', meta['total'], limit, int(meta['offset']))
 
         records = self._db.find(
             query,
