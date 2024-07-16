@@ -6,3 +6,4 @@ thriftpy==0.2.0
 chaussette==1.2
 gevent==1.0.1
 -e git+https://github.com/scieloorg/ratchet@2.0.3#egg=ratchet
+setuptools>=70.0.0 # not directly required, pinned by Snyk to avoid a vulnerability
